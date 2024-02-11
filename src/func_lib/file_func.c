@@ -6,7 +6,70 @@
 #include "file_func.h"
 
 char base_path[MAX_LENGTH];
+/**
+ * @brief dir_path_create
+ * 디렉터리 경로 생성 함수
+ *
+ * @param const char *path
+ *
+ * @param int flag
+ *
+ * @return void
+ */
+void dir_path_create(char *path, int flag)
+{
+    if (NULL == path)
+    {
+        printf("dir_path_create의 매개변수가 올바르지 않습니다.\n");
+        return;
+    }
+    char *token = NULL;
+    char *delimiter = "/";
+    char *path_copy = NULL;
 
+    path_copy = strdup(path);
+
+    if (1 == flag)
+    {
+        flie_name_remover(path_copy);
+    }
+
+    char current_path[MAX_LENGTH];
+    memset(current_path, 0, sizeof(current_path));
+
+    char relative_path[MAX_LENGTH];
+    memset(relative_path, 0, sizeof(relative_path));
+
+    token = strtok(path_copy, delimiter);
+
+    while (2 == relative_path_check(token))
+    {
+        strcat(relative_path, token);
+        strcat(relative_path, "/");
+        token = strtok(NULL, delimiter);
+    }
+    realpath(relative_path, current_path);
+
+    while (NULL != token)
+    {
+
+        strcat(current_path, "/");
+        strcat(current_path, token);
+
+        // 디렉터리 생성
+        if (-1 == mkdir(current_path, 0777))
+        {
+        }
+
+        token = strtok(NULL, delimiter);
+    }
+
+    if (NULL != path_copy)
+    {
+        free(path_copy);
+        path_copy = NULL;
+    }
+}
 /**
  * @brief check_sum_generater
  * 파일의 체크썸을 생성하는 함수
@@ -80,7 +143,7 @@ char *absolute_path_change(char *path)
     }
 
     char *token = NULL;
-    token = strtok(buffer, " \n");
+    token = strtok(buffer, "\n");
 
     return token;
 }
@@ -143,8 +206,10 @@ int file_path_check(char *path)
 
     struct stat file_data;
     memset(&file_data, 0, sizeof(file_data));
+
     int result = 0;
     result = stat(path, &file_data);
+
     if (0 == result)
     {
         return 1;
@@ -187,14 +252,21 @@ int flie_name_remover(char *path)
  * @brief process_sync_file
  * 동기화 파일을 읽고, 해쉬 테이블에 저장하는 함수
  *
+ * @param file_list_t **file_list
+ *
  * @param char *sync_file_path
  *
  * @return void
  */
-void process_sync_file(char *sync_file_path)
+void process_sync_file(file_list_t **file_list, char *sync_file_path)
 {
+    if (NULL == sync_file_path)
+    {
+        printf("process_sync_file의 매개변수가 올바르지 않습니다.\n");
+        return;
+    }
     FILE *file = fopen(sync_file_path, "r");
-    static buffer[MAX_LENGTH];
+    static char buffer[MAX_LENGTH];
     memset(buffer, 0, sizeof(buffer));
 
     char *token = NULL;
@@ -211,10 +283,10 @@ void process_sync_file(char *sync_file_path)
 
         if (1 == file_path_check(token))
         {
-            add_path(token);
+            add_path(file_list, token);
         }
     }
-    print_all_files();
+    print_all_files(file_list);
 
     fclose(file);
 }

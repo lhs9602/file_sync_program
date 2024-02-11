@@ -1,4 +1,5 @@
 #pragma once
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,11 +26,12 @@ typedef struct file_list file_list_t;
 extern "C"
 {
 #endif
-    void print_all_files();
-    file_list_t *find_file_data(char *path);
-    void add_path(char *path);
-    void delete_file_data(char *path);
-    void clear_file_list();
+    void print_all_files(file_list_t **file_list);
+    file_list_t *find_file_data(file_list_t *file_list, char *path);
+    void add_path(file_list_t **file_list, char *path);
+    void delete_file_data(file_list_t **file_list, char *path);
+    void clear_file_list(file_list_t **file_list);
+    void process_sync_file(file_list_t **file_list, char *sync_file_path);
 
 #ifdef __cplusplus
 }

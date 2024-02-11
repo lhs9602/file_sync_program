@@ -5,19 +5,20 @@
  */
 #include "hash_table_func.h"
 
-file_list_t *file_list;
-
 /**
  * @brief print_all_files
  * 해쉬 테이블에 있는 모든 맴버을 출력하는 함수
  *
+ * @param file_list_t **file_list
+ *
  * @return void
  */
-void print_all_files()
+void print_all_files(file_list_t **file_list)
 {
+
     file_list_t *current_file_data = NULL;
     file_list_t *tmp = NULL;
-    HASH_ITER(hh, file_list, current_file_data, tmp)
+    HASH_ITER(hh, *file_list, current_file_data, tmp)
     {
         printf("Path: %s\n", current_file_data->path);
         printf("File Path Size: %lu\n", current_file_data->file_path_size);
@@ -39,19 +40,33 @@ void print_all_files()
  * @brief find_file_data
  * 해쉬 테이블에서 특정 경로의 데이터를 찾는 함수
  *
+ * @param file_list_t **file_list
+ *
  * @param char *path
  *
  * @return file_list_t
  */
-file_list_t *find_file_data(char *path)
+file_list_t *find_file_data(file_list_t *file_list, char *path)
 {
     if (NULL == path)
     {
         printf("find_file_data의 매개변수가 올바르지 않습니다.\n");
         return NULL;
     }
+
+    if (2 == relative_path_check(path))
+    {
+        path = absolute_path_change(path);
+    }
+
     file_list_t *current_file_data = NULL;
     HASH_FIND_STR(file_list, path, current_file_data);
+
+    if (NULL == current_file_data)
+    {
+        printf("%s를 찾을 수 없습니다.\n", path);
+    }
+
     return current_file_data;
 }
 
@@ -59,11 +74,13 @@ file_list_t *find_file_data(char *path)
  * @brief add_path
  * 해쉬 테이블에서 특정 경로의 데이터를 추가하는 함수
  *
+ * @param file_list_t **file_list
+ *
  * @param char *path
  *
  * @return void
  */
-void add_path(char *path)
+void add_path(file_list_t **file_list, char *path)
 {
     if (NULL == path)
     {
@@ -73,10 +90,8 @@ void add_path(char *path)
 
     file_list_t *current_file_data = NULL;
 
-    // 이미 존재하는 경로인지 확인합니다.
-    HASH_FIND_STR(file_list, path, current_file_data);
+    HASH_FIND_STR(*file_list, path, current_file_data);
 
-    // 존재하지 않는 경우, 새로 요소를 동적으로 할당하고 해시 테이블에 추가합니다.
     if (NULL != current_file_data)
     {
         printf("%s는 이미 존재하는 경로입니다.\n", path);
@@ -85,20 +100,24 @@ void add_path(char *path)
 
     struct stat file_data;
     memset(&file_data, 0, sizeof(file_data));
-    stat(path, &file_data);
+
+    if ('\0' != path[0])
+    {
+        stat(path, &file_data);
+    }
 
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
 
-    current_file_data = (file_list_t *)malloc(sizeof *current_file_data);
-    current_file_data->path = strdup(path);
+    current_file_data = (file_list_t *)malloc(sizeof(file_list_t));
+    current_file_data->path = strndup(path, MAX_LENGTH);
     current_file_data->file_path_size = strlen(path) + 1;
     current_file_data->update_time = file_data.st_mtime;
     current_file_data->file_data_size = file_data.st_size;
     current_file_data->state = 0;
     check_sum_generater(path, current_file_data->check_sum, &sha256);
 
-    HASH_ADD_KEYPTR(hh, file_list, current_file_data->path, strlen(path), current_file_data);
+    HASH_ADD_KEYPTR(hh, *file_list, current_file_data->path, strlen(path), current_file_data);
     printf("%s가 추가되었습니다.\n", path);
 }
 
@@ -106,26 +125,34 @@ void add_path(char *path)
  * @brief delete_file_data
  * 해쉬 테이블에서 특정 경로의 데이터를 제거하는 함수
  *
+ * @param file_list_t **file_list
+ *
  * @param char *path
  *
  * @return void
  */
-void delete_file_data(char *path)
+void delete_file_data(file_list_t **file_list, char *path)
 {
     if (NULL == path)
     {
         printf("delete_file_data의 매개변수가 올바르지 않습니다.\n");
         return;
     }
-    file_list_t *current_file_data = find_file_data(path);
+    if (2 == relative_path_check(path))
+    {
+        path = absolute_path_change(path);
+    }
+    file_list_t *current_file_data = find_file_data(*file_list, path);
+
     if (NULL != current_file_data)
     {
-        HASH_DEL(file_list, current_file_data);
+        HASH_DEL(*file_list, current_file_data);
         free(current_file_data->path);
         free(current_file_data);
         printf("%s가 삭제되었습니다.\n", path);
         return;
     }
+
     printf("%s를 삭제하지 못했습니다.\n", path);
 }
 
@@ -133,14 +160,17 @@ void delete_file_data(char *path)
  * @brief clear_file_list
  * 해쉬 테이블에 있는 모든 맴버을 제거하는 함수
  *
+ * @param file_list_t **file_list
+ *
  * @return void
  */
-void clear_file_list()
+void clear_file_list(file_list_t **file_list)
 {
+
     file_list_t *current_file, *tmp;
-    HASH_ITER(hh, file_list, current_file, tmp)
+    HASH_ITER(hh, *file_list, current_file, tmp)
     {
-        HASH_DEL(file_list, current_file);
+        HASH_DEL(*file_list, current_file);
         free(current_file->path);
         free(current_file);
     }

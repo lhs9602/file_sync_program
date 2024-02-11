@@ -1,9 +1,10 @@
 #pragma GCC diagnostic ignored "-Wunused-result"
 #include "../../include/file_func.h"
 #include "hash_table_func.h"
+#include "../../include/socket_func.h"
+#include <sys/select.h>
 
 char base_path[MAX_LENGTH];
-file_list_t *file_list = NULL;
 
 int main(int argc, char *argv[])
 {
@@ -28,7 +29,60 @@ int main(int argc, char *argv[])
     snprintf(base_path, MAX_LENGTH, "%s", sync_file_path);
     flie_name_remover(base_path);
 
-    process_sync_file(sync_file_path);
+    file_list_t *file_list = NULL;
+    process_sync_file(&file_list, sync_file_path);
 
+    int server_socket_fd = 0;
+    server_socket_fd = socket_create(AF_INET, SOCK_STREAM, PROTOCOL);
+
+    int opt = 1;
+    setsockopt(server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+    struct sockaddr_in address;
+    server_address_set(&address, AF_INET, PORT);
+
+    socket_bind(server_socket_fd, &address);
+    socket_listen(server_socket_fd, 50);
+
+    fd_set readfds;
+    int client_socket[MAX_CLIENTS];
+    memset(client_socket, 0, sizeof(client_socket));
+
+    int addrlen = sizeof(address);
+    int max_sd = 0;
+
+    struct timeval timeout;
+    memset(&timeout, 0, sizeof(timeout));
+    while (TRUE)
+    {
+        printf("checking\n");
+
+        select_init(server_socket_fd, client_socket, &readfds, &max_sd, &timeout);
+
+        select(max_sd + 1, &readfds, NULL, NULL, &timeout);
+
+        // 새로운 연결 요청 확인
+        if (FD_ISSET(server_socket_fd, &readfds))
+        {
+            int new_socket = 0;
+            new_socket = socket_accept(server_socket_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen);
+
+            // 새 소켓을 클라이언트 소켓 배열에 추가
+            client_add(new_socket, client_socket);
+        }
+
+        for (int index = 0; index < MAX_CLIENTS; index++)
+        {
+            if (0 == client_socket[index])
+            {
+                continue;
+            }
+            if (FD_ISSET(client_socket[index], &readfds))
+            {
+                client_socket[index] = client_connect_check(client_socket[index]);
+            }
+        }
+    }
+    clear_file_list(&file_list);
     return 0;
 }

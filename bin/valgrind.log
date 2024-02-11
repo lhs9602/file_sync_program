@@ -1,0 +1,400 @@
+==38771== Memcheck, a memory error detector
+==38771== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==38771== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==38771== Command: ./server /home/nesusa/shared_dir/sync_list.txt
+==38771== Parent PID: 12323
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EEF9: strnlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x4BD53C2: strndup (strndup.c:42)
+==38771==    by 0x109C3B: file_path_check (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DE5: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7976 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 8
+==38771==    at 0x4842A7C: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x109C3B: file_path_check (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DE5: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7992 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 8
+==38771==    at 0x4842A87: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x109C3B: file_path_check (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DE5: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf8 is on thread 1's stack
+==38771==  7984 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 8
+==38771==    at 0x4842A8F: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x109C3B: file_path_check (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DE5: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce00 is on thread 1's stack
+==38771==  7976 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 8
+==38771==    at 0x4842A97: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x109C3B: file_path_check (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DE5: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce08 is on thread 1's stack
+==38771==  7968 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF46: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10A51E: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7768 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF54: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10A51E: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf1 is on thread 1's stack
+==38771==  7767 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A589: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7776 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A59A: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf1 is on thread 1's stack
+==38771==  7775 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A5B0: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf2 is on thread 1's stack
+==38771==  7774 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A5C6: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf3 is on thread 1's stack
+==38771==  7773 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A5E2: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf4 is on thread 1's stack
+==38771==  7772 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A5F3: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf5 is on thread 1's stack
+==38771==  7771 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A609: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf6 is on thread 1's stack
+==38771==  7770 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A61F: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf7 is on thread 1's stack
+==38771==  7769 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A63B: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf8 is on thread 1's stack
+==38771==  7768 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A64C: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf9 is on thread 1's stack
+==38771==  7767 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A662: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdfa is on thread 1's stack
+==38771==  7766 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A678: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdfb is on thread 1's stack
+==38771==  7765 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A89D: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce0f is on thread 1's stack
+==38771==  7745 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A8B7: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce0e is on thread 1's stack
+==38771==  7746 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A8D1: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce0d is on thread 1's stack
+==38771==  7747 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A8EB: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce0c is on thread 1's stack
+==38771==  7748 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A902: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce0b is on thread 1's stack
+==38771==  7749 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A91C: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce0a is on thread 1's stack
+==38771==  7750 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A936: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce09 is on thread 1's stack
+==38771==  7751 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10A94C: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce08 is on thread 1's stack
+==38771==  7752 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x10AC5D: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7776 bytes below stack pointer
+==38771== 
+==38771== Syscall param stat(file_name) points to unaddressable byte(s)
+==38771==    at 0x4C436DA: _xstat (xstat.c:35)
+==38771==    by 0x10AC7C: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7768 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EEF9: strnlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x4BD53C2: strndup (strndup.c:42)
+==38771==    by 0x10ACB0: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7736 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 8
+==38771==    at 0x4842A7C: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10ACB0: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7752 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 8
+==38771==    at 0x4842A87: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10ACB0: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf8 is on thread 1's stack
+==38771==  7744 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 8
+==38771==    at 0x4842A8F: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10ACB0: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce00 is on thread 1's stack
+==38771==  7736 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 8
+==38771==    at 0x4842A97: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10ACB0: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce08 is on thread 1's stack
+==38771==  7728 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF46: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10ACCC: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7768 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF54: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10ACCC: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf1 is on thread 1's stack
+==38771==  7767 bytes below stack pointer
+==38771== 
+==38771== Syscall param openat(filename) points to unaddressable byte(s)
+==38771==    at 0x4C43F5B: open (open64.c:48)
+==38771==    by 0x4BC6015: _IO_file_open (fileops.c:189)
+==38771==    by 0x4BC62D9: _IO_file_fopen@@GLIBC_2.2.5 (fileops.c:281)
+==38771==    by 0x4BB898D: __fopen_internal (iofopen.c:75)
+==38771==    by 0x4BB898D: fopen@@GLIBC_2.2.5 (iofopen.c:86)
+==38771==    by 0x109908: check_sum_generater (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10AD2E: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  6384 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF46: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10AD6E: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7768 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF54: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10AD6E: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf1 is on thread 1's stack
+==38771==  7767 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF46: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10B00A: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7768 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF54: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10B00A: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf1 is on thread 1's stack
+==38771==  7767 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF46: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10B2EB: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  7768 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF54: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x10B2EB: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf1 is on thread 1's stack
+==38771==  7767 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF46: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x4BAED14: __vfprintf_internal (vfprintf-internal.c:1688)
+==38771==    by 0x4B97D3E: printf (printf.c:33)
+==38771==    by 0x10B95A: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  6136 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x483EF54: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x4BAED14: __vfprintf_internal (vfprintf-internal.c:1688)
+==38771==    by 0x4B97D3E: printf (printf.c:33)
+==38771==    by 0x10B95A: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf1 is on thread 1's stack
+==38771==  6135 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x4BC570C: _IO_new_file_xsputn (fileops.c:1219)
+==38771==    by 0x4BC570C: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1197)
+==38771==    by 0x4BAD0FB: __vfprintf_internal (vfprintf-internal.c:1688)
+==38771==    by 0x4B97D3E: printf (printf.c:33)
+==38771==    by 0x10B95A: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffce0f is on thread 1's stack
+==38771==  6033 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x48436E0: mempcpy (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x4BC5631: _IO_new_file_xsputn (fileops.c:1236)
+==38771==    by 0x4BC5631: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1197)
+==38771==    by 0x4BAD0FB: __vfprintf_internal (vfprintf-internal.c:1688)
+==38771==    by 0x4B97D3E: printf (printf.c:33)
+==38771==    by 0x10B95A: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf0 is on thread 1's stack
+==38771==  6048 bytes below stack pointer
+==38771== 
+==38771== Invalid read of size 1
+==38771==    at 0x48436EE: mempcpy (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==38771==    by 0x4BC5631: _IO_new_file_xsputn (fileops.c:1236)
+==38771==    by 0x4BC5631: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1197)
+==38771==    by 0x4BAD0FB: __vfprintf_internal (vfprintf-internal.c:1688)
+==38771==    by 0x4B97D3E: printf (printf.c:33)
+==38771==    by 0x10B95A: add_path (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x109DFD: process_sync_file (in /home/nesusa/file_sync_program/bin/server)
+==38771==    by 0x10960E: main (in /home/nesusa/file_sync_program/bin/server)
+==38771==  Address 0x1ffeffcdf2 is on thread 1's stack
+==38771==  6046 bytes below stack pointer
+==38771== 
+==38771== 
+==38771== HEAP SUMMARY:
+==38771==     in use at exit: 0 bytes in 0 blocks
+==38771==   total heap usage: 170 allocs, 170 frees, 34,268 bytes allocated
+==38771== 
+==38771== All heap blocks were freed -- no leaks are possible
+==38771== 
+==38771== For lists of detected and suppressed errors, rerun with: -s
+==38771== ERROR SUMMARY: 371 errors from 48 contexts (suppressed: 0 from 0)
