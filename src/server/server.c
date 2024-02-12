@@ -1,6 +1,7 @@
 #pragma GCC diagnostic ignored "-Wunused-result"
 #include "../../include/file_func.h"
 #include "hash_table_func.h"
+#include "serialize_func.h"
 #include "../../include/socket_func.h"
 #include <sys/select.h>
 
@@ -32,6 +33,16 @@ int main(int argc, char *argv[])
     file_list_t *file_list = NULL;
     process_sync_file(&file_list, sync_file_path);
 
+    transfer_header_t transfer_header;
+    memset(&transfer_header, 0, sizeof(transfer_header_t));
+
+    transfer_header.data_type = 3;
+    transfer_header.total_size = total_file_size_cal(file_list);
+    transfer_header.file_count = HASH_COUNT(file_list);
+
+    unsigned char *serialized_data = NULL;
+    file_serialized(&serialized_data, file_list, transfer_header);
+
     int server_socket_fd = 0;
     server_socket_fd = socket_create(AF_INET, SOCK_STREAM, PROTOCOL);
 
@@ -61,16 +72,6 @@ int main(int argc, char *argv[])
 
         select(max_sd + 1, &readfds, NULL, NULL, &timeout);
 
-        // 새로운 연결 요청 확인
-        if (FD_ISSET(server_socket_fd, &readfds))
-        {
-            int new_socket = 0;
-            new_socket = socket_accept(server_socket_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen);
-
-            // 새 소켓을 클라이언트 소켓 배열에 추가
-            client_add(new_socket, client_socket);
-        }
-
         for (int index = 0; index < MAX_CLIENTS; index++)
         {
             if (0 == client_socket[index])
@@ -82,6 +83,24 @@ int main(int argc, char *argv[])
                 client_socket[index] = client_connect_check(client_socket[index]);
             }
         }
+
+        // 새로운 연결 요청 확인
+        if (FD_ISSET(server_socket_fd, &readfds))
+        {
+            int new_socket = 0;
+            new_socket = socket_accept(server_socket_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen);
+
+            // 새 소켓을 클라이언트 소켓 배열에 추가
+            client_add(new_socket, client_socket);
+
+            send(new_socket, serialized_data, sizeof(transfer_header_t) + transfer_header.total_size, 0);
+        }
+    }
+
+    if (NULL != serialized_data)
+    {
+        free(serialized_data);
+        serialized_data = NULL;
     }
     clear_file_list(&file_list);
     return 0;
