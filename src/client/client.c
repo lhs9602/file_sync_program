@@ -9,7 +9,6 @@ int main(int argc, char *argv[])
 {
     dir_path_create(DESTINATION_PATH, 0);
     int client_soket_fd = client_action();
-    char buffer[MAX_DATA_SIZE];
 
     while (TRUE)
     {
@@ -25,9 +24,7 @@ int main(int argc, char *argv[])
         if (0 == received_bytes)
         {
             printf("상대편 프로세스가 연결을 종료했습니다.\n");
-            sleep(60);
             break;
-            ;
         }
 
         // 수신 받을 직렬화 데이터 할당
@@ -42,8 +39,6 @@ int main(int argc, char *argv[])
                 free(serialized_data);
                 serialized_data = NULL;
             }
-
-            sleep(60);
             break;
         }
 
@@ -56,6 +51,7 @@ int main(int argc, char *argv[])
             serialized_data = NULL;
         }
     }
+
     close(client_soket_fd);
     return 0;
 }

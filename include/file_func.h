@@ -28,6 +28,7 @@ extern "C"
     int relative_path_check(char *path);
     int check_sum_generater(char *path, unsigned char *check_sum, SHA256_CTX *sha256);
     void process_sync_file(file_list_t **file_list, char *sync_file_path);
+    int update_check_sync_file(file_list_t **file_list, char *sync_file_path);
 
 #ifdef __cplusplus
 }

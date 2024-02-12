@@ -33,9 +33,18 @@ int file_deserialized(unsigned char **serialized_data, int file_count, char *fil
     unsigned long file_path_size = 0;
     unsigned long file_data_size = 0;
 
+    long start_time = 0;
+    long end_time = 0;
+    double elapsed_time = 0;
+
+    long start_sync_time = clock();
+
     // 직렬화 데이터 추출
     for (int path_index = 0; path_index < file_count; path_index++)
     {
+
+        start_time = clock();
+
         // 파일 경로 길이 추출 및 포인터 이동
         file_path_size = 0;
         memcpy(&file_path_size, serialized_data_ptr, sizeof(file_path_size));
@@ -78,9 +87,22 @@ int file_deserialized(unsigned char **serialized_data, int file_count, char *fil
         fwrite(serialized_data_ptr, 1, file_data_size, file);
         serialized_data_ptr += file_data_size;
 
-        printf("path:%s\tfile_path_size:%ld\tfile_data_size:%ld\n", path, file_path_size, file_data_size);
+        end_time = clock();
+        elapsed_time = ((double)(end_time - start_time)) / CLOCKS_PER_SEC * 1000.0;
+
+        // 파일명 추출
+        char *file_name = NULL;
+        file_name = strrchr(path, '/');
+        file_name++;
+
+        printf("파일명: %s\t파일크기: %ld\t전송 시간: %.3f 밀리초\n", file_name, file_data_size, elapsed_time);
+        printf("-----------------------------------------------------------------\n");
         fclose(file);
     }
+
+    end_time = clock();
+    elapsed_time = ((double)(end_time - start_sync_time)) / CLOCKS_PER_SEC * 1000.0;
+    printf("총 전송 시간 %.3f\n", elapsed_time);
 
     return 1;
 }

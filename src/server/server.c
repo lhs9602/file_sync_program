@@ -72,17 +72,26 @@ int main(int argc, char *argv[])
 
         select(max_sd + 1, &readfds, NULL, NULL, &timeout);
 
-        for (int index = 0; index < MAX_CLIENTS; index++)
+        change_state(file_list, -1);
+        print_all_files(&file_list);
+
+        if (1 == update_check_sync_file(&file_list, sync_file_path))
         {
-            if (0 == client_socket[index])
+            for (int index = 0; index < MAX_CLIENTS; index++)
             {
-                continue;
-            }
-            if (FD_ISSET(client_socket[index], &readfds))
-            {
-                client_socket[index] = client_connect_check(client_socket[index]);
+                if (0 == client_socket[index])
+                {
+                    continue;
+                }
+                if (FD_ISSET(client_socket[index], &readfds))
+                {
+                    client_socket[index] = client_connect_check(client_socket[index]);
+                }
             }
         }
+
+        change_state(file_list, 0);
+        print_all_files(&file_list);
 
         // 새로운 연결 요청 확인
         if (FD_ISSET(server_socket_fd, &readfds))

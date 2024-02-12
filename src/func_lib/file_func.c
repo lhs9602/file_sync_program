@@ -290,3 +290,55 @@ void process_sync_file(file_list_t **file_list, char *sync_file_path)
 
     fclose(file);
 }
+
+/**
+ * @brief update_check_sync_file
+ * 동기화 파일을 읽고, 해쉬 테이블에 저장하는 함수
+ *
+ * @param file_list_t **file_list
+ *
+ * @param char *sync_file_path
+ *
+ * @return int
+ */
+int update_check_sync_file(file_list_t **file_list, char *sync_file_path)
+{
+
+    FILE *file = fopen(sync_file_path, "r");
+    static char buffer[MAX_LENGTH];
+    memset(buffer, 0, sizeof(buffer));
+
+    int result = 0;
+
+    char *token = NULL;
+    while (fgets(buffer, sizeof(buffer), file) != NULL)
+    {
+        if (2 == relative_path_check(buffer))
+        {
+            token = absolute_path_change(buffer);
+        }
+        else
+        {
+            token = strtok(buffer, " \n");
+        }
+
+        if (1 == file_path_check(token))
+        {
+            file_list_t *current_file_data = find_file_data(*file_list, token);
+
+            if (NULL == current_file_data)
+            {
+                result = 1;
+                add_path(file_list, token);
+            }
+            else if (1 == check_path(current_file_data, token))
+            {
+                result = 1;
+            }
+        }
+    }
+    fclose(file);
+    print_all_files(file_list);
+
+    return result;
+}

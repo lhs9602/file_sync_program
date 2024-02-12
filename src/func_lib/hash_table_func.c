@@ -54,11 +54,6 @@ file_list_t *find_file_data(file_list_t *file_list, char *path)
         return NULL;
     }
 
-    if (2 == relative_path_check(path))
-    {
-        path = absolute_path_change(path);
-    }
-
     file_list_t *current_file_data = NULL;
     HASH_FIND_STR(file_list, path, current_file_data);
 
@@ -100,11 +95,7 @@ void add_path(file_list_t **file_list, char *path)
 
     struct stat file_data;
     memset(&file_data, 0, sizeof(file_data));
-
-    if ('\0' != path[0])
-    {
-        stat(path, &file_data);
-    }
+    stat(path, &file_data);
 
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
@@ -114,6 +105,9 @@ void add_path(file_list_t **file_list, char *path)
     current_file_data->file_path_size = strlen(path) + 1;
     current_file_data->update_time = file_data.st_mtime;
     current_file_data->file_data_size = file_data.st_size;
+
+    // 이후 해쉬테이블을 관리하기 위한 맴버
+    // 0은 평상시 상태, 1은 변경사항이 발생해 전송할 상태, -1은 삭제해야하는 상태
     current_file_data->state = 0;
     check_sum_generater(path, current_file_data->check_sum, &sha256);
 
@@ -200,4 +194,56 @@ unsigned long total_file_size_cal(file_list_t *file_list)
     printf("total_size:%ld\n", total_size);
 
     return total_size;
+}
+
+/**
+ * @brief check_path
+ * 파일이 업데이트 되었는지 체크하는 함수
+ *
+ * @param file_list_t *current_file_data
+ *
+ * @param char *path
+ *
+ * @return int
+ */
+int check_path(file_list_t *current_file_data, char *path)
+{
+    struct stat file_data;
+    memset(&file_data, 0, sizeof(file_data));
+    stat(path, &file_data);
+    printf("path: %s", current_file_data->path);
+    if (current_file_data->update_time == file_data.st_mtime)
+    {
+        printf("유지\n");
+        current_file_data->state = 0;
+    }
+    else
+    {
+        printf("변경\n");
+        current_file_data->update_time = file_data.st_mtime;
+        current_file_data->state = 1;
+    }
+
+    return current_file_data->state;
+}
+
+/**
+ * @brief change_state
+ * 경로들의 상태를 일괄 변경하는 함수
+ *
+ * @param file_list_t *file_list
+ *
+ * @param int state
+ *
+ * @return void
+ */
+void change_state(file_list_t *file_list, int state)
+{
+    file_list_t *current_file_data = NULL;
+    file_list_t *tmp = NULL;
+
+    HASH_ITER(hh, file_list, current_file_data, tmp)
+    {
+        current_file_data->state = state;
+    }
 }
