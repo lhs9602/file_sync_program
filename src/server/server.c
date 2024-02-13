@@ -4,6 +4,7 @@
 #include "serialize_func.h"
 #include "../../include/socket_func.h"
 #include <sys/select.h>
+#include "thread_func.h"
 
 char base_path[MAX_LENGTH];
 
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
 
     unsigned char *serialized_data = NULL;
     file_serialized(&serialized_data, file_list, transfer_header);
+    change_state(file_list, 0);
 
     int server_socket_fd = 0;
     server_socket_fd = socket_create(AF_INET, SOCK_STREAM, PROTOCOL);
@@ -61,9 +63,13 @@ int main(int argc, char *argv[])
 
     int addrlen = sizeof(address);
     int max_sd = 0;
+    int client_close;
 
     struct timeval timeout;
     memset(&timeout, 0, sizeof(timeout));
+
+    unsigned char *update_data = NULL;
+
     while (TRUE)
     {
         printf("checking\n");
@@ -71,28 +77,6 @@ int main(int argc, char *argv[])
         select_init(server_socket_fd, client_socket, &readfds, &max_sd, &timeout);
 
         select(max_sd + 1, &readfds, NULL, NULL, &timeout);
-
-        change_state(file_list, -1);
-        print_all_files(&file_list);
-
-        if (1 == update_check_sync_file(&file_list, sync_file_path))
-        {
-            for (int index = 0; index < MAX_CLIENTS; index++)
-            {
-                if (0 == client_socket[index])
-                {
-                    continue;
-                }
-                if (FD_ISSET(client_socket[index], &readfds))
-                {
-                    client_socket[index] = client_connect_check(client_socket[index]);
-                }
-            }
-        }
-
-        change_state(file_list, 0);
-        print_all_files(&file_list);
-
         // 새로운 연결 요청 확인
         if (FD_ISSET(server_socket_fd, &readfds))
         {
@@ -103,9 +87,62 @@ int main(int argc, char *argv[])
             client_add(new_socket, client_socket);
 
             send(new_socket, serialized_data, sizeof(transfer_header_t) + transfer_header.total_size, 0);
+            continue;
         }
-    }
 
+        client_close = 0;
+        for (int index = 0; index < MAX_CLIENTS; index++)
+        {
+            if (0 == client_socket[index])
+            {
+                continue;
+            }
+            if (FD_ISSET(client_socket[index], &readfds))
+            {
+                client_close = 1;
+                client_socket[index] = client_connect_check(client_socket[index]);
+            }
+        }
+
+        if (1 == client_close)
+        {
+            continue;
+        }
+
+        change_state(file_list, -1);
+
+        if (1 == update_check_sync_file(&file_list, sync_file_path))
+        {
+
+            transfer_header_t update_header;
+            memset(&update_header, 0, sizeof(transfer_header_t));
+
+            update_header_set(file_list, &update_header);
+
+            if (0 != update_header.total_size)
+            {
+                update_data_serialized(file_list, update_header, &update_data);
+                thread_create(&update_data, &update_header, client_socket);
+
+                if (NULL != update_data)
+                {
+                    free(update_data);
+                    update_data = NULL;
+                }
+            }
+            if (NULL != serialized_data)
+            {
+                free(serialized_data);
+                serialized_data = NULL;
+            }
+            transfer_header.data_type = 3;
+            transfer_header.total_size = total_file_size_cal(file_list);
+            transfer_header.file_count = HASH_COUNT(file_list);
+            file_serialized(&serialized_data, file_list, transfer_header);
+        }
+
+        change_state(file_list, 0);
+    }
     if (NULL != serialized_data)
     {
         free(serialized_data);

@@ -338,6 +338,9 @@ int update_check_sync_file(file_list_t **file_list, char *sync_file_path)
         }
     }
     fclose(file);
+
+    delete_state_clear(file_list);
+
     print_all_files(file_list);
 
     return result;

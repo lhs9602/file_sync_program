@@ -7,6 +7,98 @@
 #include "hash_table_func.h"
 
 /**
+ * @brief update_header_set
+ * update_header를 설정하는 함수
+ *
+ * @param file_list_t *file_list
+ *
+ * @param transfer_header_t update_header
+ *
+ * @param unsigned char **update_data
+ *
+ * @return void
+ */
+void update_header_set(file_list_t *file_list, transfer_header_t *update_header)
+{
+    file_list_t *current_file_data = NULL;
+    file_list_t *tmp = NULL;
+
+    unsigned long total_size = 0;
+    int file_count = 0;
+    HASH_ITER(hh, file_list, current_file_data, tmp)
+    {
+        if (1 == current_file_data->state)
+        {
+            total_size += current_file_data->file_path_size + sizeof(unsigned long);
+            total_size += current_file_data->file_data_size + sizeof(unsigned long);
+            file_count += 1;
+        }
+    }
+
+    update_header->total_size = total_size;
+    update_header->file_count = file_count;
+    update_header->data_type = 3;
+}
+
+/**
+ * @brief update_data_serialized
+ * 변경된 파일을 직렬화하는 함수
+ *
+ * @param file_list_t *file_list
+ *
+ * @param transfer_header_t update_header
+ *
+ * @param unsigned char **update_data
+ *
+ * @return void
+ */
+void update_data_serialized(file_list_t *file_list, transfer_header_t update_header, unsigned char **update_data)
+{
+    if (NULL == file_list)
+    {
+        printf("update_data_serialized 매개변수가 올바르지 않습니다.\n");
+        return;
+    }
+
+    *update_data = (unsigned char *)malloc(sizeof(transfer_header_t) + update_header.total_size);
+    unsigned char *update_data_ptr = *update_data;
+
+    // 헤더 저장 및 포인터 이동
+    memcpy(update_data_ptr, &update_header, sizeof(transfer_header_t));
+    update_data_ptr += sizeof(transfer_header_t);
+
+    file_list_t *current_file_data = NULL;
+    file_list_t *tmp = NULL;
+
+    HASH_ITER(hh, file_list, current_file_data, tmp)
+    {
+        if (1 == current_file_data->state)
+        {
+            // 파일의 경로 길이 저장 및 포인터 이동
+            memcpy(update_data_ptr, &current_file_data->file_path_size, sizeof(unsigned long));
+            update_data_ptr += sizeof(unsigned long);
+
+            // 파일 크기 저장 및 포인터 이동
+            memcpy(update_data_ptr, &current_file_data->file_data_size, sizeof(unsigned long));
+            update_data_ptr += sizeof(unsigned long);
+
+            // 파일의 경로 저장 및 포인터 이동
+            snprintf(update_data_ptr, current_file_data->file_path_size + 1, "%s", current_file_data->file_name);
+            update_data_ptr += current_file_data->file_path_size;
+
+            FILE *file = NULL;
+            file = fopen(current_file_data->path, "rb");
+
+            // 파일 데이터 저장 및 포인터 이동
+            fread(update_data_ptr, 1, current_file_data->file_data_size, file);
+            update_data_ptr += current_file_data->file_data_size;
+
+            fclose(file);
+        }
+    }
+}
+
+/**
  * @brief file_deserialized
  * 파일을 역직렬화하는 함수
  *
@@ -90,7 +182,6 @@ int file_deserialized(unsigned char **serialized_data, int file_count, char *fil
         end_time = clock();
         elapsed_time = ((double)(end_time - start_time)) / CLOCKS_PER_SEC * 1000.0;
 
-        // 파일명 추출
         char *file_name = NULL;
         file_name = strrchr(path, '/');
         file_name++;
@@ -136,7 +227,6 @@ void file_serialized(unsigned char **serialized_data, file_list_t *file_list, tr
     file_list_t *current_file_data = NULL;
     file_list_t *tmp = NULL;
 
-    int total_size = 0;
     HASH_ITER(hh, file_list, current_file_data, tmp)
     {
         // 파일의 경로 길이 저장 및 포인터 이동
@@ -148,7 +238,7 @@ void file_serialized(unsigned char **serialized_data, file_list_t *file_list, tr
         serialized_data_ptr += sizeof(unsigned long);
 
         // 파일의 경로 저장 및 포인터 이동
-        snprintf(serialized_data_ptr, current_file_data->file_path_size + 1, "%s", current_file_data->path);
+        snprintf(serialized_data_ptr, current_file_data->file_path_size + 1, "%s", current_file_data->file_name);
         serialized_data_ptr += current_file_data->file_path_size;
 
         FILE *file = NULL;

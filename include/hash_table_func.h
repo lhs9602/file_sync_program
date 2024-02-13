@@ -12,6 +12,7 @@
 struct file_list
 {
     char *path;
+    char *file_name;
     unsigned long file_path_size;
     unsigned long file_data_size;
     unsigned char check_sum[SHA256_DIGEST_LENGTH];
