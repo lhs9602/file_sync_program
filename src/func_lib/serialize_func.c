@@ -18,7 +18,7 @@
  *
  * @return void
  */
-void update_header_set(file_list_t *file_list, transfer_header_t *update_header)
+void update_header_set(file_list_t *file_list, transfer_header_t *update_header, int data_type)
 {
     file_list_t *current_file_data = NULL;
     file_list_t *tmp = NULL;
@@ -37,7 +37,7 @@ void update_header_set(file_list_t *file_list, transfer_header_t *update_header)
 
     update_header->total_size = total_size;
     update_header->file_count = file_count;
-    update_header->data_type = 3;
+    update_header->data_type = data_type;
 }
 
 /**
@@ -238,7 +238,7 @@ void file_serialized(unsigned char **serialized_data, file_list_t *file_list, tr
         serialized_data_ptr += sizeof(unsigned long);
 
         // 파일의 경로 저장 및 포인터 이동
-        snprintf(serialized_data_ptr, current_file_data->file_path_size + 1, "%s", current_file_data->file_name);
+        snprintf(serialized_data_ptr, current_file_data->file_path_size, "%s", current_file_data->file_name);
         serialized_data_ptr += current_file_data->file_path_size;
 
         FILE *file = NULL;

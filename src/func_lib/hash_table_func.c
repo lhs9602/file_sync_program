@@ -56,6 +56,7 @@ file_list_t *find_file_data(file_list_t *file_list, char *path)
     }
 
     file_list_t *current_file_data = NULL;
+
     HASH_FIND_STR(file_list, path, current_file_data);
 
     if (NULL == current_file_data)
@@ -87,7 +88,7 @@ void add_path(file_list_t **file_list, char *path)
     file_list_t *current_file_data = NULL;
 
     HASH_FIND_STR(*file_list, path, current_file_data);
-    char *file_name = NULL;
+
     if (NULL != current_file_data)
     {
         printf("%s는 이미 존재하는 경로입니다.\n", path);
@@ -100,24 +101,24 @@ void add_path(file_list_t **file_list, char *path)
 
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
-
+    char *file_name = NULL;
     file_name = strrchr(path, '/');
     file_name++;
 
     current_file_data = (file_list_t *)malloc(sizeof(file_list_t));
+
     current_file_data->path = strndup(path, MAX_LENGTH);
     current_file_data->file_name = strndup(file_name, MAX_LENGTH);
     current_file_data->file_path_size = strlen(file_name) + 1;
     current_file_data->update_time = file_data.st_mtime;
     current_file_data->file_data_size = file_data.st_size;
-
     // 이후 해쉬테이블을 관리하기 위한 맴버
     // 0은 평상시 상태, 1은 변경사항이 발생해 전송할 상태, -1은 삭제해야하는 상태
     // add_path가 실행되면 초기 동기화든, 변경사항 동기화든 전송할 필요가 있기에 1로 설정
     current_file_data->state = 1;
     check_sum_generater(path, current_file_data->check_sum, &sha256);
 
-    HASH_ADD_KEYPTR(hh, *file_list, current_file_data->path, strlen(path), current_file_data);
+    HASH_ADD_KEYPTR(hh, *file_list, current_file_data->path, strlen(current_file_data->path), current_file_data);
     printf("%s가 추가되었습니다.\n", path);
 }
 
@@ -138,19 +139,16 @@ void delete_file_data(file_list_t **file_list, char *path)
         printf("delete_file_data의 매개변수가 올바르지 않습니다.\n");
         return;
     }
-    if (2 == relative_path_check(path))
-    {
-        path = absolute_path_change(path);
-    }
+
     file_list_t *current_file_data = find_file_data(*file_list, path);
 
     if (NULL != current_file_data)
     {
+        HASH_DEL(*file_list, current_file_data);
         printf("%s가 삭제되었습니다.\n", path);
         free(current_file_data->path);
         free(current_file_data->file_name);
         free(current_file_data);
-        HASH_DEL(*file_list, current_file_data);
 
         return;
     }
@@ -199,13 +197,10 @@ void delete_state_clear(file_list_t **file_list)
 void clear_file_list(file_list_t **file_list)
 {
 
-    file_list_t *current_file, *tmp;
-    HASH_ITER(hh, *file_list, current_file, tmp)
+    file_list_t *current_file_data, *tmp;
+    HASH_ITER(hh, *file_list, current_file_data, tmp)
     {
-        HASH_DEL(*file_list, current_file);
-        free(current_file->path);
-        free(current_file->file_name);
-        free(current_file);
+        delete_file_data(file_list, current_file_data->path);
     }
     printf("file_list가 삭제되었습니다.\n");
 }
@@ -251,6 +246,10 @@ int check_path(file_list_t *current_file_data, char *path)
     memset(&file_data, 0, sizeof(file_data));
     stat(path, &file_data);
     printf("path: %s", current_file_data->path);
+
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+
     if (current_file_data->update_time == file_data.st_mtime)
     {
         printf("유지\n");
@@ -261,6 +260,8 @@ int check_path(file_list_t *current_file_data, char *path)
         printf("변경\n");
         current_file_data->update_time = file_data.st_mtime;
         current_file_data->file_data_size = file_data.st_size;
+
+        check_sum_generater(path, current_file_data->check_sum, &sha256);
         current_file_data->state = 1;
     }
 

@@ -2,6 +2,7 @@
 #include "../../include/file_func.h"
 #include "hash_table_func.h"
 #include "serialize_func.h"
+#include "compress_func.h"
 #include "../../include/socket_func.h"
 #include <sys/select.h>
 #include "thread_func.h"
@@ -43,6 +44,12 @@ int main(int argc, char *argv[])
 
     unsigned char *serialized_data = NULL;
     file_serialized(&serialized_data, file_list, transfer_header);
+
+    if (transfer_header.total_size > COMPRESS_BOUNDARY)
+    {
+        transfer_header.total_size = serialized_data_compress(&serialized_data, &transfer_header, transfer_header.total_size);
+    }
+
     change_state(file_list, 0);
 
     int server_socket_fd = 0;
@@ -113,15 +120,18 @@ int main(int argc, char *argv[])
 
         if (1 == update_check_sync_file(&file_list, sync_file_path))
         {
-
             transfer_header_t update_header;
             memset(&update_header, 0, sizeof(transfer_header_t));
-
-            update_header_set(file_list, &update_header);
+            update_header_set(file_list, &update_header, 3);
 
             if (0 != update_header.total_size)
             {
+                printf("변경 데이터 전송\n");
                 update_data_serialized(file_list, update_header, &update_data);
+                if (update_header.total_size > COMPRESS_BOUNDARY)
+                {
+                    update_header.total_size = serialized_data_compress(&update_data, &update_header, update_header.total_size);
+                }
                 thread_create(&update_data, &update_header, client_socket);
 
                 if (NULL != update_data)
@@ -135,10 +145,17 @@ int main(int argc, char *argv[])
                 free(serialized_data);
                 serialized_data = NULL;
             }
+
             transfer_header.data_type = 3;
             transfer_header.total_size = total_file_size_cal(file_list);
             transfer_header.file_count = HASH_COUNT(file_list);
+
             file_serialized(&serialized_data, file_list, transfer_header);
+
+            if (transfer_header.total_size > COMPRESS_BOUNDARY)
+            {
+                transfer_header.total_size = serialized_data_compress(&serialized_data, &transfer_header, transfer_header.total_size);
+            }
         }
 
         change_state(file_list, 0);

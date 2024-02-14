@@ -2,16 +2,18 @@
 #include "hash_table_func.h"
 #include "../../include/socket_func.h"
 #include "serialize_func.h"
+#include "compress_func.h"
 
 #define DESTINATION_PATH "../../sync_dir/"
 
 int main(int argc, char *argv[])
 {
     dir_path_create(DESTINATION_PATH, 0);
-    int client_soket_fd = client_action();
-
+    int client_soket_fd = 0;
+    client_soket_fd = client_action();
     while (TRUE)
     {
+
         static char file_path[MAX_LENGTH];
         memset(file_path, 0, sizeof(file_path));
 
@@ -42,6 +44,11 @@ int main(int argc, char *argv[])
             break;
         }
 
+        // 압축 데이터의 경우 압축 해제
+        if (transfer_header.data_type > COMPRESS_TYPE)
+        {
+            serialized_data_decompress(&serialized_data, &transfer_header);
+        }
         // 파일 역직렬화
         file_deserialized(&serialized_data, transfer_header.file_count, DESTINATION_PATH);
 
@@ -50,6 +57,7 @@ int main(int argc, char *argv[])
             free(serialized_data);
             serialized_data = NULL;
         }
+        printf("\n\n");
     }
 
     close(client_soket_fd);

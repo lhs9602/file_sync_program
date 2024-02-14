@@ -249,7 +249,10 @@ int client_action()
     struct sockaddr_in address;
     server_address_set(&address, AF_INET, PORT);
     // 서버에 연결 시도
-    socket_connect(socket_fd, &address);
+    if (-1 == socket_connect(socket_fd, &address))
+    {
+        return -1;
+    }
     return socket_fd;
 }
 
@@ -301,6 +304,7 @@ int master_server_action(in_addr_t ip_addresses)
     printf("연결 성공\n");
     return socket_fd;
 }
+
 void select_init(int server_socket_fd, int *client_socket, fd_set *readfds, int *max_sd, struct timeval *timeout)
 {
     FD_ZERO(readfds);

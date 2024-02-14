@@ -1,6 +1,7 @@
 #pragma once
 
 #include "file_test.h"
+#include "hash_table_func.h"
 #include <gtest/gtest.h>
 #include <iostream>
 #include <string>

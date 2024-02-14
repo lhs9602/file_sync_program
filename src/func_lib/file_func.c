@@ -164,7 +164,7 @@ int relative_path_check(char *path)
         printf("relative_path_check의 매개변수가 올바르지 않습니다.\n");
         return -1;
     }
-    const char *pattern = "(\\./|\\.\\./|\\.\\.)";
+    const char *pattern = "^(\\./|\\.\\./|\\.)";
     int check_result = 0;
 
     regex_t regex;
@@ -313,6 +313,7 @@ int update_check_sync_file(file_list_t **file_list, char *sync_file_path)
     char *token = NULL;
     while (fgets(buffer, sizeof(buffer), file) != NULL)
     {
+
         if (2 == relative_path_check(buffer))
         {
             token = absolute_path_change(buffer);
@@ -324,17 +325,23 @@ int update_check_sync_file(file_list_t **file_list, char *sync_file_path)
 
         if (1 == file_path_check(token))
         {
-            file_list_t *current_file_data = find_file_data(*file_list, token);
+            file_list_t *current_file_data = NULL;
+            current_file_data = find_file_data(*file_list, token);
+            printf("5\n");
 
             if (NULL == current_file_data)
             {
+                printf("6\n");
+
                 result = 1;
                 add_path(file_list, token);
+                printf("7\n");
             }
             else if (1 == check_path(current_file_data, token))
             {
                 result = 1;
             }
+            printf("8\n");
         }
     }
     fclose(file);

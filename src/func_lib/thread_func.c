@@ -5,14 +5,6 @@
  */
 
 #include "thread_func.h"
-#include "socket_func.h"
-#include "serialize_func.h"
-
-// 스레드 관련 전역 변수 초기화
-unsigned int thread_bit_mask = 0;
-pthread_cond_t all_threads_done = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-int shmid;
 
 /**
  * @brief file_send_thread

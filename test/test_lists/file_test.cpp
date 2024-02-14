@@ -104,8 +104,8 @@ TEST_F(file_test, flie_name_remover1)
     char path[] = "../../test_files/1/2/3";
 
     flie_name_remover(path);
-    std::string output = ::testing::internal::GetCapturedStdout();
     EXPECT_STREQ(path, "../../test_files/1/2");
+    std::string output = ::testing::internal::GetCapturedStdout();
 }
 
 TEST_F(file_test, flie_name_remover2)
@@ -114,8 +114,8 @@ TEST_F(file_test, flie_name_remover2)
     char path[] = "../../test_files/4/5/6.txt";
 
     flie_name_remover(path);
-    std::string output = ::testing::internal::GetCapturedStdout();
     EXPECT_STREQ(path, "../../test_files/4/5");
+    std::string output = ::testing::internal::GetCapturedStdout();
 }
 
 TEST_F(file_test, flie_name_remover3)
@@ -148,4 +148,30 @@ TEST_F(file_test, dir_path_create2)
 
     ASSERT_EQ(0, access("../../test_files/4", F_OK));
     ASSERT_EQ(0, access("../../test_files/4/5", F_OK));
+}
+TEST_F(file_test, process_sync_file)
+{
+    ::testing::internal::CaptureStdout();
+
+    file_list_t *file_list = nullptr;
+    process_sync_file(&file_list, (char *)sync_file_path);
+    EXPECT_NE(file_list, nullptr);
+
+    std::string output = ::testing::internal::GetCapturedStdout();
+}
+TEST_F(file_test, update_check_sync_file)
+{
+    ::testing::internal::CaptureStdout();
+
+    file_list_t *file_list = nullptr;
+    process_sync_file(&file_list, (char *)sync_file_path);
+    EXPECT_EQ(update_check_sync_file(&file_list, (char *)sync_file_path), 0);
+
+    std::string output = ::testing::internal::GetCapturedStdout();
+}
+
+TEST_F(file_test, absolute_path_change)
+{
+
+    EXPECT_STRNE(absolute_path_change("../../test_files/1.txt"), "../../test_files/1.txt");
 }

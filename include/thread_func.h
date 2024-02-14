@@ -2,8 +2,10 @@
 #include "file_func.h"
 #include "socket_func.h"
 #include "serialize_func.h"
+#include "compress_func.h"
 #include <pthread.h>
 #include <zlib.h>
+
 struct thread_data
 {
     int thread_id;
@@ -12,9 +14,6 @@ struct thread_data
     unsigned long serialized_data_size;
 };
 typedef struct thread_data thread_data_t;
-
-// 조건 변수와 뮤텍스
-extern pthread_mutex_t mutex;
 
 #ifdef __cplusplus
 extern "C"

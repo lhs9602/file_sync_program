@@ -10,6 +10,7 @@
 #include <limits.h>
 #include <regex.h>
 #include "hash_table_func.h"
+#include "serialize_func.h"
 #include "uthash.h"
 #define TRUE 1
 #define MAX_LENGTH 4096
