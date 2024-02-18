@@ -32,6 +32,18 @@ int main(int argc, char *argv[])
     snprintf(base_path, MAX_LENGTH, "%s", sync_file_path);
     flie_name_remover(base_path);
 
+    char sync_server_path[MAX_LENGTH];
+    memset(sync_server_path, 0, sizeof(sync_server_path));
+
+    if (1 == file_path_check(argv[2]))
+    {
+        strncpy(sync_server_path, argv[2], sizeof(sync_file_path));
+    }
+
+    // sync_server_path의 길이로 메인과 슬레이브 서버 구분
+    int sync_server_path_len = 0;
+    sync_server_path_len = strlen(sync_server_path);
+
     file_list_t *file_list = NULL;
     process_sync_file(&file_list, sync_file_path);
 
@@ -42,6 +54,7 @@ int main(int argc, char *argv[])
     transfer_header.total_size = total_file_size_cal(file_list);
     transfer_header.file_count = HASH_COUNT(file_list);
 
+    // 초기 데이터 할당
     unsigned char *serialized_data = NULL;
     file_serialized(&serialized_data, file_list, transfer_header);
 
@@ -65,6 +78,7 @@ int main(int argc, char *argv[])
     socket_listen(server_socket_fd, 50);
 
     fd_set readfds;
+
     int client_socket[MAX_CLIENTS];
     memset(client_socket, 0, sizeof(client_socket));
 
@@ -78,7 +92,11 @@ int main(int argc, char *argv[])
     unsigned char *update_data = NULL;
 
     while (TRUE)
-    {
+    { // 슬레이브 서버 로직
+        if (0 == sync_server_path_len)
+        {
+            slave_server_action(file_list, sync_file_path);
+        }
         printf("checking\n");
 
         select_init(server_socket_fd, client_socket, &readfds, &max_sd, &timeout);
@@ -115,9 +133,10 @@ int main(int argc, char *argv[])
         {
             continue;
         }
-
+        // 기존의 상태를 -1로 변경
         change_state(file_list, -1);
 
+        // 변경 사항 확인
         if (1 == update_check_sync_file(&file_list, sync_file_path))
         {
             transfer_header_t update_header;
@@ -133,19 +152,16 @@ int main(int argc, char *argv[])
                     update_header.total_size = serialized_data_compress(&update_data, &update_header, update_header.total_size);
                 }
                 thread_create(&update_data, &update_header, client_socket);
-
-                if (NULL != update_data)
-                {
-                    free(update_data);
-                    update_data = NULL;
-                }
             }
+
+            // 기존 초기 데이터 할당 해제
             if (NULL != serialized_data)
             {
                 free(serialized_data);
                 serialized_data = NULL;
             }
 
+            // 초기 전송 데이터에 변경사항을 반영하여 다시 생성
             transfer_header.data_type = 3;
             transfer_header.total_size = total_file_size_cal(file_list);
             transfer_header.file_count = HASH_COUNT(file_list);
@@ -157,8 +173,14 @@ int main(int argc, char *argv[])
                 transfer_header.total_size = serialized_data_compress(&serialized_data, &transfer_header, transfer_header.total_size);
             }
         }
-
+        // 상태를 0으로 초기화
         change_state(file_list, 0);
+
+        //  마스터 서버 로직
+        if (0 != sync_server_path_len)
+        {
+            master_server_action(file_list, sync_server_path);
+        }
     }
     if (NULL != serialized_data)
     {
