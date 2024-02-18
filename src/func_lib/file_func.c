@@ -309,11 +309,9 @@ int update_check_sync_file(file_list_t **file_list, char *sync_file_path)
     memset(buffer, 0, sizeof(buffer));
 
     int result = 0;
-
     char *token = NULL;
     while (fgets(buffer, sizeof(buffer), file) != NULL)
     {
-
         if (2 == relative_path_check(buffer))
         {
             token = absolute_path_change(buffer);
@@ -327,28 +325,69 @@ int update_check_sync_file(file_list_t **file_list, char *sync_file_path)
         {
             file_list_t *current_file_data = NULL;
             current_file_data = find_file_data(*file_list, token);
-            printf("5\n");
-
             if (NULL == current_file_data)
             {
-                printf("6\n");
-
                 result = 1;
                 add_path(file_list, token);
-                printf("7\n");
             }
             else if (1 == check_path(current_file_data, token))
             {
                 result = 1;
             }
-            printf("8\n");
         }
     }
     fclose(file);
-
     delete_state_clear(file_list);
-
     print_all_files(file_list);
 
     return result;
+}
+
+/**
+ * @brief process_sync_server
+ * 동기화 서버 리스트 파일을 읽고, 유효한 ip를 찾는 함수
+ *
+ * @param char *sync_server_path
+ *
+ * @param in_addr_t **ip_addresses
+ *
+ * @return int
+ */
+int process_sync_server(char *sync_server_path, in_addr_t *ip_addresses)
+{
+    FILE *file = fopen(sync_server_path, "r");
+    if (file == NULL)
+    {
+        printf("파일 열기 실패\n");
+        return 0;
+    }
+    int ip_count = 0;
+
+    char buffer[MAX_LENGTH];
+    char *token = NULL;
+    while (fgets(buffer, sizeof(buffer), file))
+    {
+        // 개행 문자 제거
+        char *token = strtok(buffer, " \n");
+
+        if (NULL == token)
+        {
+            continue;
+        }
+
+        in_addr_t ip = inet_addr(token);
+
+        if (INADDR_NONE == ip)
+        {
+            continue;
+        }
+
+        // 배열에 주소 저장
+        ip_addresses[ip_count] = ip;
+        ip_count++;
+    }
+
+    fclose(file);
+
+    return ip_count;
 }

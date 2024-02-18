@@ -118,8 +118,8 @@ unsigned long serialized_data_compress(unsigned char **serialized_data, transfer
     compress_data_ptr += sizeof(transfer_header_t);
     memcpy(compress_data_ptr, &serialized_data_size, sizeof(serialized_data_size));
 
-    printf("압축 전 크기:%lu\n", serialized_data_size);
-    printf("압축 후 크기:%lu\n", compressed_data_size);
+    printf("압축 전 크기:%lu\t압축 후 크기:%lu\n", serialized_data_size, compressed_data_size);
+
     // 기존 직렬화 데이터 해제 및 압축데이터를 할당
     if (NULL != *serialized_data)
     {

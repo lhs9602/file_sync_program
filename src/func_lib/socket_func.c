@@ -257,18 +257,140 @@ int client_action()
 }
 
 /**
+ * @brief select_init
+ * 서버에서 selcet함수에 초기 설정을 하는 함수
+ *
+ * @param   int server_socket_fd
+ *
+ * @param   int *client_socket
+ *
+ * @param   fd_set *readfds
+ *
+ * @param   int *max_sd
+ *
+ * @param   struct timeval *timeout
+ *
+ * @return void
+ *
+ */
+void select_init(int server_socket_fd, int *client_socket, fd_set *readfds, int *max_sd, struct timeval *timeout)
+{
+    FD_ZERO(readfds);
+    FD_SET(server_socket_fd, readfds);
+    *max_sd = server_socket_fd;
+
+    for (int i = 0; i < MAX_CLIENTS; i++)
+    {
+        if (client_socket[i] > 0)
+        {
+            FD_SET(client_socket[i], readfds);
+            if (client_socket[i] > *max_sd)
+            {
+                *max_sd = client_socket[i];
+            }
+        }
+    }
+
+    timeout->tv_sec = WAIT_TIME;
+    timeout->tv_usec = 0;
+}
+
+/**
+ * @brief client_add
+ * 클라이언트 소켓 배열에 새로 연결되는 소켓을 저장하는 함수
+ *
+ * @param   int new_socket
+ *
+ * @param   int *client_socket
+ *
+ * @return void
+ *
+ */
+void client_add(int new_socket, int *client_socket)
+{
+    for (int index = 0; index < MAX_CLIENTS; index++)
+    {
+        if (0 == client_socket[index])
+        {
+            printf("새 클라이언트로부터의 요청 %d\n", index);
+            client_socket[index] = new_socket;
+            break;
+        }
+    }
+}
+
+/**
+ * @brief client_connect_check
+ * 연결이 종료된 소켓을 정리하는 함수
+ *
+ * @param   int client_socket
+ *
+ * @return  int
+ *
+ */
+int client_connect_check(int client_socket)
+{
+    int valread = 0;
+    char buffer[MAX_DATA_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+
+    if (0 == read(client_socket, buffer, MAX_DATA_SIZE))
+    {
+        printf("기존 클라이언트가 연결이 종료되었습니다\n");
+        close(client_socket);
+        client_socket = 0;
+    }
+
+    return client_socket;
+}
+
+/**
  * @brief master_server_action
+ * 동기화 서버 리스트를 읽고,스레드를 생성하는 함수
+ *
+ * @param file_list_t *file_list
+ *
+ * @param char *sync_server_path
+ *
+ * @return void
+ */
+void master_server_action(file_list_t *file_list, char *sync_server_path)
+{
+    if (NULL == file_list)
+    {
+        printf("sync_server_transfer_action 매개변수가 올바르지 않습니다.\n");
+        return;
+    }
+    // IP 주소를 저장할 배열
+    in_addr_t ip_addresses[MAX_IPS];
+    memset(ip_addresses, 0, sizeof(ip_addresses));
+
+    int ip_count = 0;
+    ip_count = process_sync_server(sync_server_path, ip_addresses);
+
+    for (int index = 0; index < MAX_IPS; index++)
+    {
+        if (0 == ip_addresses[index])
+        {
+            continue;
+        }
+        printf("유효한 주소:%d. %s\n", index, inet_ntoa(*(struct in_addr *)&ip_addresses[index]));
+    }
+    if (ip_count != 0)
+    {
+        master_server_thread(file_list, ip_addresses, ip_count);
+    }
+}
+/**
+ * @brief master_server_connect
  * 마스터 서버에서 서브에게 통신 요청을 하는 함수
  *
  *@param in_addr_t ip_addresses
  *
- *@param int sockfd
- *
- *
- * @return int socket_fd
+ *@return int socket_fd
  *
  */
-int master_server_action(in_addr_t ip_addresses)
+int master_server_connect(in_addr_t ip_addresses)
 {
     if (0 == ip_addresses)
     {
@@ -303,55 +425,4 @@ int master_server_action(in_addr_t ip_addresses)
 
     printf("연결 성공\n");
     return socket_fd;
-}
-
-void select_init(int server_socket_fd, int *client_socket, fd_set *readfds, int *max_sd, struct timeval *timeout)
-{
-    FD_ZERO(readfds);
-    FD_SET(server_socket_fd, readfds);
-    *max_sd = server_socket_fd;
-
-    for (int i = 0; i < MAX_CLIENTS; i++)
-    {
-        if (client_socket[i] > 0)
-        {
-            FD_SET(client_socket[i], readfds);
-            if (client_socket[i] > *max_sd)
-            {
-                *max_sd = client_socket[i];
-            }
-        }
-    }
-
-    timeout->tv_sec = WAIT_TIME;
-    timeout->tv_usec = 0;
-}
-
-void client_add(int new_socket, int *client_socket)
-{
-    for (int index = 0; index < MAX_CLIENTS; index++)
-    {
-        if (0 == client_socket[index])
-        {
-            printf("새 클라이언트로부터의 요청 %d\n", index);
-            client_socket[index] = new_socket;
-            break;
-        }
-    }
-}
-int client_connect_check(int client_socket)
-{
-    int valread = 0;
-    char buffer[MAX_DATA_SIZE];
-    memset(buffer, 0, sizeof(buffer));
-
-    valread = read(client_socket, buffer, MAX_DATA_SIZE);
-    if (0 == valread)
-    {
-        printf("기존 클라이언트가 연결이 종료되었습니다\n");
-        close(client_socket);
-        client_socket = 0;
-    }
-
-    return client_socket;
 }

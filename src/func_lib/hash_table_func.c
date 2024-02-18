@@ -22,18 +22,18 @@ void print_all_files(file_list_t **file_list)
     {
         printf("Path: %s\n", current_file_data->path);
         printf("File_Name: %s\n", current_file_data->file_name);
-        printf("File Path Size: %lu\n", current_file_data->file_path_size);
-        printf("File Data Size: %lu\n", current_file_data->file_data_size);
-        printf("Update Time: %ld\n", current_file_data->update_time);
+        //  printf("File Path Size: %lu\n", current_file_data->file_path_size);
+        // printf("File Data Size: %lu\n", current_file_data->file_data_size);
+        // printf("Update Time: %ld\n", current_file_data->update_time);
         printf("State: %d\n", current_file_data->state);
 
         // check_sum은 바이트 배열이므로, 각 바이트를 16진수 형태로 출력합니다.
-        printf("Check Sum: ");
-        for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
-        {
-            printf("%02x", current_file_data->check_sum[i]);
-        }
-        printf("\n\n");
+        // printf("Check Sum: ");
+        // for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+        // {
+        //     printf("%02x", current_file_data->check_sum[i]);
+        // }
+        printf("\n");
     }
 }
 
@@ -101,6 +101,7 @@ void add_path(file_list_t **file_list, char *path)
 
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
+
     char *file_name = NULL;
     file_name = strrchr(path, '/');
     file_name++;
@@ -108,8 +109,8 @@ void add_path(file_list_t **file_list, char *path)
     current_file_data = (file_list_t *)malloc(sizeof(file_list_t));
 
     current_file_data->path = strndup(path, MAX_LENGTH);
+    current_file_data->file_path_size = strlen(path) + 1;
     current_file_data->file_name = strndup(file_name, MAX_LENGTH);
-    current_file_data->file_path_size = strlen(file_name) + 1;
     current_file_data->update_time = file_data.st_mtime;
     current_file_data->file_data_size = file_data.st_size;
     // 이후 해쉬테이블을 관리하기 위한 맴버
