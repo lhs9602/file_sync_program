@@ -12,6 +12,8 @@
 #include "hash_table_func.h"
 #include "serialize_func.h"
 #include "uthash.h"
+#include "socket_func.h"
+
 #define TRUE 1
 #define MAX_LENGTH 4096
 #define MAX_DATA_SIZE 1024
@@ -30,6 +32,7 @@ extern "C"
     int check_sum_generater(char *path, unsigned char *check_sum, SHA256_CTX *sha256);
     void process_sync_file(file_list_t **file_list, char *sync_file_path);
     int update_check_sync_file(file_list_t **file_list, char *sync_file_path);
+    int process_sync_server(char *sync_server_path, in_addr_t *ip_addresses);
 
 #ifdef __cplusplus
 }

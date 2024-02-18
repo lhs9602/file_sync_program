@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <sys/select.h>
 #include "file_func.h"
+#include "hash_table_func.h"
+#include "thread_func.h"
 
 #define PORT 12345
 #define SERVER_PORT 12346 // 서버 포트 번호
@@ -16,6 +18,10 @@
 #define INTERVAL_TIME 1 // 요청 주기 (초)
 #define WAIT_TIME 5
 #define MAX_CLIENTS 20
+#define MAX_IPS 20    // 최대 IP 주소 저장 가능 개수
+#define MAX_IP_LEN 16 // IPv4 주소 최대 길이
+
+typedef struct file_list file_list_t;
 
 #ifdef __cplusplus
 extern "C"
@@ -30,10 +36,11 @@ extern "C"
     int socket_accept(int socket_fd, struct sockaddr *address, socklen_t *addrlen);
     int socket_select(int slave_server_socket);
     int client_action();
-    int master_server_action(in_addr_t ip_addresses);
     void select_init(int server_socket_fd, int *client_socket, fd_set *readfds, int *max_sd, struct timeval *timeout);
     void client_add(int new_socket, int *client_socket);
     int client_connect_check(int client_socket);
+    int master_server_connect(in_addr_t ip_addresses);
+    void master_server_action(file_list_t *file_list, char *sync_server_path);
 
 #ifdef __cplusplus
 }

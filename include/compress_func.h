@@ -10,6 +10,8 @@
 #define COMPRESS_TYPE 10
 #define COMPRESS_BOUNDARY 0
 
+typedef struct transfer_header transfer_header_t;
+
 #ifdef __cplusplus
 
 extern "C"
