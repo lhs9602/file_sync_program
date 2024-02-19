@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     // sync_server_path의 길이로 메인과 슬레이브 서버 구분
     int sync_server_path_len = 0;
     sync_server_path_len = strlen(sync_server_path);
+    printf("sync_server_path_len = %d\n", sync_server_path_len);
 
     file_list_t *file_list = NULL;
     process_sync_file(&file_list, sync_file_path);
@@ -153,7 +154,6 @@ int main(int argc, char *argv[])
                 int master_server_socket = 0;
                 master_server_socket = socket_accept(server_socket_fd, (struct sockaddr *)&server_socket_address, (socklen_t *)&server_socket_addrlen);
                 slave_server_action(master_server_socket, file_list, sync_file_path);
-                close(slave_server_socket);
             }
         }
 
@@ -213,5 +213,7 @@ int main(int argc, char *argv[])
         serialized_data = NULL;
     }
     clear_file_list(&file_list);
+    close(slave_server_socket);
+    close(server_socket_fd);
     return 0;
 }
