@@ -211,6 +211,55 @@ void file_deserialized(unsigned char **serialized_data, int file_count, char *fi
 }
 
 /**
+ * @brief file_serialized
+ * 파일 데이터를 직렬화하는 함수
+ *
+ * @param unsigned char **serialized_data
+ *
+ * @param file_list_t *file_list
+ *
+ * @param transfer_header_t transfer_header
+ *
+ * @return unsigned long
+ */
+void file_serialized(unsigned char **serialized_data, file_list_t *file_list, transfer_header_t transfer_header)
+{
+    if (NULL == file_list)
+    {
+        printf("file_serialized 매개변수가 올바르지 않습니다.\n");
+        return;
+    }
+    *serialized_data = (unsigned char *)malloc(sizeof(transfer_header_t) + transfer_header.total_size);
+    unsigned char *serialized_data_ptr = *serialized_data;
+
+    // 헤더 저장 및 포인터 이동
+    memcpy(serialized_data_ptr, &transfer_header, sizeof(transfer_header_t));
+    serialized_data_ptr += sizeof(transfer_header_t);
+
+    file_list_t *current_file_data = NULL;
+    file_list_t *tmp = NULL;
+
+    HASH_ITER(hh, file_list, current_file_data, tmp)
+    {
+        memcpy(serialized_data_ptr, &current_file_data->file_path_size, sizeof(unsigned long));
+        serialized_data_ptr += sizeof(unsigned long);
+
+        memcpy(serialized_data_ptr, &current_file_data->file_data_size, sizeof(unsigned long));
+        serialized_data_ptr += sizeof(unsigned long);
+
+        snprintf(serialized_data_ptr, current_file_data->file_path_size, "%s", current_file_data->path);
+        serialized_data_ptr += current_file_data->file_path_size;
+
+        FILE *file = NULL;
+        file = fopen(current_file_data->path, "rb");
+
+        fread(serialized_data_ptr, 1, current_file_data->file_data_size, file);
+        serialized_data_ptr += current_file_data->file_data_size;
+
+        fclose(file);
+    }
+}
+/**
  * @brief file_path_deserialized
  * 파일 경로를 역직렬화하는 함수
  *
@@ -312,56 +361,6 @@ void file_path_serialized(unsigned char **serialized_data, transfer_header_t *tr
 }
 
 /**
- * @brief file_serialized
- * 파일 데이터를 직렬화하는 함수
- *
- * @param unsigned char **serialized_data
- *
- * @param file_list_t *file_list
- *
- * @param transfer_header_t transfer_header
- *
- * @return unsigned long
- */
-void file_serialized(unsigned char **serialized_data, file_list_t *file_list, transfer_header_t transfer_header)
-{
-    if (NULL == file_list)
-    {
-        printf("file_serialized 매개변수가 올바르지 않습니다.\n");
-        return;
-    }
-    *serialized_data = (unsigned char *)malloc(sizeof(transfer_header_t) + transfer_header.total_size);
-    unsigned char *serialized_data_ptr = *serialized_data;
-
-    // 헤더 저장 및 포인터 이동
-    memcpy(serialized_data_ptr, &transfer_header, sizeof(transfer_header_t));
-    serialized_data_ptr += sizeof(transfer_header_t);
-
-    file_list_t *current_file_data = NULL;
-    file_list_t *tmp = NULL;
-
-    HASH_ITER(hh, file_list, current_file_data, tmp)
-    {
-        memcpy(serialized_data_ptr, &current_file_data->file_path_size, sizeof(unsigned long));
-        serialized_data_ptr += sizeof(unsigned long);
-
-        memcpy(serialized_data_ptr, &current_file_data->file_data_size, sizeof(unsigned long));
-        serialized_data_ptr += sizeof(unsigned long);
-
-        snprintf(serialized_data_ptr, current_file_data->file_path_size, "%s", current_file_data->path);
-        serialized_data_ptr += current_file_data->file_path_size;
-
-        FILE *file = NULL;
-        file = fopen(current_file_data->path, "rb");
-
-        fread(serialized_data_ptr, 1, current_file_data->file_data_size, file);
-        serialized_data_ptr += current_file_data->file_data_size;
-
-        fclose(file);
-    }
-}
-
-/**
  * @brief file_list_deserialized
  * 파일 리스트를 역직렬화하는 함수
  *
@@ -389,8 +388,9 @@ void file_list_deserialized(unsigned char **serialized_data, file_list_t *file_l
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
 
-    FILE *file = NULL;
-    file = fopen(sync_file_path, "w");
+    // FILE *file = NULL;
+    // file = fopen(sync_file_path, "w");
+    printf("---------------------------업데이트 대상----------------------\n");
     // 직렬화 데이터 추출
     for (int path_index = 0; path_index < file_count; path_index++)
     {
@@ -406,7 +406,7 @@ void file_list_deserialized(unsigned char **serialized_data, file_list_t *file_l
         snprintf(path, file_path_size, "%s", serialized_data_ptr);
         serialized_data_ptr += file_path_size;
 
-        fprintf(file, "%s\n", path);
+        // fprintf(file, "%s\n", path);
 
         unsigned char check_sum[SHA256_DIGEST_LENGTH];
         memset(check_sum, 0, sizeof(check_sum));

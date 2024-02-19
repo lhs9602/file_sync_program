@@ -149,10 +149,12 @@ int main(int argc, char *argv[])
         // 슬레이브 서버 로직
         if (0 == sync_server_path_len)
         {
-            if (FD_ISSET(server_socket_fd, &readfds))
+            printf(" 슬레이브 서버 로직\n");
+
+            if (FD_ISSET(slave_server_socket, &readfds))
             {
                 int master_server_socket = 0;
-                master_server_socket = socket_accept(server_socket_fd, (struct sockaddr *)&server_socket_address, (socklen_t *)&server_socket_addrlen);
+                master_server_socket = socket_accept(slave_server_socket, (struct sockaddr *)&server_socket_address, (socklen_t *)&server_socket_addrlen);
                 slave_server_action(master_server_socket, file_list, sync_file_path);
             }
         }
