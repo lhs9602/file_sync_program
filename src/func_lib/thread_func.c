@@ -192,6 +192,7 @@ void *server_send_thread(void *arg)
         memset(&transfer_header, 0, sizeof(transfer_header_t));
 
         // 업데이트 리스트의 헤더 수신
+        printf("업데이트 리스트의 헤더 수신 \n");
         received_bytes = recv(socket_fd, &transfer_header, sizeof(transfer_header_t), 0);
         if (0 == received_bytes)
         {
@@ -202,9 +203,9 @@ void *server_send_thread(void *arg)
             pthread_detach(pthread_self());
             pthread_exit(NULL);
         }
-
         // 수신 받을 직렬화 데이터 할당
         serialized_data = (unsigned char *)malloc(transfer_header.total_size);
+        printf("업데이트 리스트의 직렬화 데이터 수신\n");
 
         // 업데이트 리스트의 직렬화 데이터 수신
         received_bytes = recv(socket_fd, serialized_data, transfer_header.total_size, 0);
@@ -227,10 +228,9 @@ void *server_send_thread(void *arg)
         {
             serialized_data_decompress(&serialized_data, &transfer_header);
         }
-
+        printf(" 업데이트 리스트의 직렬화 데이터 역작렬화\n");
         // 업데이트 리스트의 직렬화 데이터 역작렬화
-        //   transfer_server_file_list = file_path_deserialized(transfer_server_file_list, &serialized_data, total_file_list_count);
-
+        file_path_deserialized(file_list, &serialized_data, transfer_header.file_count);
         if (NULL != serialized_data)
         {
             free(serialized_data);
@@ -241,18 +241,18 @@ void *server_send_thread(void *arg)
         // 업데이트 리스트가 존재할 경우에만 실행
         if (transfer_header.file_count > 0)
         {
+            printf("파일 직렬화 전송\n");
 
             update_header_set(file_list, &transfer_header, 3);
+            printf("0\n");
             file_serialized(&serialized_data, file_list, transfer_header);
-
+            printf("1\n");
             // 직렬화 데이터 압축화
             if (transfer_header.total_size > COMPRESS_BOUNDARY)
             {
                 transfer_header.total_size = serialized_data_compress(&serialized_data, &transfer_header, transfer_header.total_size);
             }
-
             send(socket_fd, serialized_data, sizeof(transfer_header_t) + transfer_header.total_size, 0);
-
             if (NULL != serialized_data)
             {
                 free(serialized_data);

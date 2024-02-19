@@ -238,7 +238,7 @@ void file_serialized(unsigned char **serialized_data, file_list_t *file_list, tr
 
     file_list_t *current_file_data = NULL;
     file_list_t *tmp = NULL;
-
+    FILE *file = NULL;
     HASH_ITER(hh, file_list, current_file_data, tmp)
     {
         memcpy(serialized_data_ptr, &current_file_data->file_path_size, sizeof(unsigned long));
@@ -249,9 +249,12 @@ void file_serialized(unsigned char **serialized_data, file_list_t *file_list, tr
 
         snprintf(serialized_data_ptr, current_file_data->file_path_size, "%s", current_file_data->path);
         serialized_data_ptr += current_file_data->file_path_size;
-
-        FILE *file = NULL;
+        printf("%s\n", current_file_data->path);
         file = fopen(current_file_data->path, "rb");
+        if (NULL == file)
+        {
+            printf("%s 파일 열기 실패\n", current_file_data->path);
+        }
 
         fread(serialized_data_ptr, 1, current_file_data->file_data_size, file);
         serialized_data_ptr += current_file_data->file_data_size;
@@ -282,9 +285,8 @@ void file_path_deserialized(file_list_t *file_list, unsigned char **serialized_d
     unsigned char *serialized_data_ptr = NULL;
     serialized_data_ptr = *serialized_data;
 
-    // 파일 갯수 함수 밖에서 확인 했기에 포인터만 이동
-    serialized_data_ptr += sizeof(int);
     file_list_t *current_file_data = NULL;
+    printf("---------------------------업데이트 대상----------------------\n");
 
     // 직렬화 데이터 추출
     for (int path_index = 0; path_index < file_count; path_index++)
@@ -292,7 +294,7 @@ void file_path_deserialized(file_list_t *file_list, unsigned char **serialized_d
         // 파일 경로 길이 추출 및 포인터 이동
         unsigned long file_path_size = 0;
         memcpy(&file_path_size, serialized_data_ptr, sizeof(file_path_size));
-        serialized_data_ptr += sizeof(file_path_size);
+        serialized_data_ptr += sizeof(unsigned long);
 
         char path[MAX_LENGTH];
         memset(path, 0, sizeof(path));
@@ -301,7 +303,6 @@ void file_path_deserialized(file_list_t *file_list, unsigned char **serialized_d
         snprintf(path, file_path_size, "%s", serialized_data_ptr);
         serialized_data_ptr += file_path_size;
 
-        current_file_data = NULL;
         current_file_data = find_file_data(file_list, path);
         if (NULL == current_file_data)
         {
@@ -309,6 +310,7 @@ void file_path_deserialized(file_list_t *file_list, unsigned char **serialized_d
         }
         else
         {
+            printf("업데이트: %s\n", current_file_data->path);
             current_file_data->state = 1;
         }
     }
@@ -390,7 +392,6 @@ void file_list_deserialized(unsigned char **serialized_data, file_list_t *file_l
 
     // FILE *file = NULL;
     // file = fopen(sync_file_path, "w");
-    printf("---------------------------업데이트 대상----------------------\n");
     // 직렬화 데이터 추출
     for (int path_index = 0; path_index < file_count; path_index++)
     {
