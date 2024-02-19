@@ -18,6 +18,9 @@ void print_all_files(file_list_t **file_list)
 
     file_list_t *current_file_data = NULL;
     file_list_t *tmp = NULL;
+    printf("파일 리스트 목록 %s\n", current_file_data->path);
+    printf("-------------------------------------------------\n");
+
     HASH_ITER(hh, *file_list, current_file_data, tmp)
     {
         printf("Path: %s\n", current_file_data->path);
@@ -33,7 +36,7 @@ void print_all_files(file_list_t **file_list)
         // {
         //     printf("%02x", current_file_data->check_sum[i]);
         // }
-        printf("\n");
+        printf("-------------------------------------------------\n");
     }
 }
 
@@ -245,7 +248,6 @@ int check_path(file_list_t *current_file_data, char *path)
     struct stat file_data;
     memset(&file_data, 0, sizeof(file_data));
     stat(path, &file_data);
-    printf("path: %s", current_file_data->path);
 
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
@@ -256,7 +258,7 @@ int check_path(file_list_t *current_file_data, char *path)
     }
     else
     {
-        printf(" 변경\n");
+        printf("path: %s 변경\n", current_file_data->path);
         current_file_data->update_time = file_data.st_mtime;
         current_file_data->file_data_size = file_data.st_size;
 
