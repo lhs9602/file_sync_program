@@ -20,7 +20,6 @@ extern "C"
 {
 #endif
     void update_header_set(file_list_t *file_list, transfer_header_t *update_header, int data_type);
-    void update_data_serialized(file_list_t *file_list, transfer_header_t update_header, unsigned char **update_data);
     void file_serialized(unsigned char **serialized_data, file_list_t *file_list, transfer_header_t transfer_header);
     void file_deserialized(unsigned char **serialized_data, int file_count, char *file_path);
     void file_list_serialized(unsigned char **serialized_data, transfer_header_t *transfer_header, file_list_t *file_list);

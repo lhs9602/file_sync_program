@@ -244,9 +244,8 @@ void *server_send_thread(void *arg)
             printf("파일 직렬화 전송\n");
 
             update_header_set(file_list, &transfer_header, 3);
-            printf("0\n");
             file_serialized(&serialized_data, file_list, transfer_header);
-            printf("1\n");
+
             // 직렬화 데이터 압축화
             if (transfer_header.total_size > COMPRESS_BOUNDARY)
             {

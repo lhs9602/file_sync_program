@@ -4,7 +4,7 @@
 #include "serialize_func.h"
 #include "compress_func.h"
 
-#define DESTINATION_PATH "../../sync_dir/"
+#define DESTINATION_PATH "../../sync_dir"
 
 int main(int argc, char *argv[])
 {
@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
             }
             break;
         }
-
         // 압축 데이터의 경우 압축 해제
         if (transfer_header.data_type > COMPRESS_TYPE)
         {

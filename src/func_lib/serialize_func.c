@@ -58,64 +58,6 @@ void update_header_set(file_list_t *file_list, transfer_header_t *update_header,
 }
 
 /**
- * @brief update_data_serialized
- * 변경된 파일을 직렬화하는 함수
- *
- * @param file_list_t *file_list
- *
- * @param transfer_header_t update_header
- *
- * @param unsigned char **update_data
- *
- * @return void
- */
-void update_data_serialized(file_list_t *file_list, transfer_header_t update_header, unsigned char **update_data)
-{
-    if (NULL == file_list)
-    {
-        printf("update_data_serialized 매개변수가 올바르지 않습니다.\n");
-        return;
-    }
-
-    *update_data = (unsigned char *)malloc(sizeof(transfer_header_t) + update_header.total_size);
-    unsigned char *update_data_ptr = *update_data;
-
-    // 헤더 저장 및 포인터 이동
-    memcpy(update_data_ptr, &update_header, sizeof(transfer_header_t));
-    update_data_ptr += sizeof(transfer_header_t);
-
-    file_list_t *current_file_data = NULL;
-    file_list_t *tmp = NULL;
-
-    HASH_ITER(hh, file_list, current_file_data, tmp)
-    {
-        if (1 == current_file_data->state)
-        {
-            // 파일의 경로 길이 저장 및 포인터 이동
-            memcpy(update_data_ptr, &current_file_data->file_path_size, sizeof(unsigned long));
-            update_data_ptr += sizeof(unsigned long);
-
-            // 파일 크기 저장 및 포인터 이동
-            memcpy(update_data_ptr, &current_file_data->file_data_size, sizeof(unsigned long));
-            update_data_ptr += sizeof(unsigned long);
-
-            // 파일의 경로 저장 및 포인터 이동
-            snprintf(update_data_ptr, current_file_data->file_path_size + 1, "%s", current_file_data->file_name);
-            update_data_ptr += current_file_data->file_path_size;
-
-            FILE *file = NULL;
-            file = fopen(current_file_data->path, "rb");
-
-            // 파일 데이터 저장 및 포인터 이동
-            fread(update_data_ptr, 1, current_file_data->file_data_size, file);
-            update_data_ptr += current_file_data->file_data_size;
-
-            fclose(file);
-        }
-    }
-}
-
-/**
  * @brief file_deserialized
  * 파일을 역직렬화하는 함수
  *
@@ -158,7 +100,6 @@ void file_deserialized(unsigned char **serialized_data, int file_count, char *fi
         file_path_size = 0;
         memcpy(&file_path_size, serialized_data_ptr, sizeof(file_path_size));
         serialized_data_ptr += sizeof(unsigned long);
-
         // 파일 크기 추출 및 포인터 이동
         file_data_size = 0;
         memcpy(&file_data_size, serialized_data_ptr, sizeof(file_data_size));
@@ -179,9 +120,13 @@ void file_deserialized(unsigned char **serialized_data, int file_count, char *fi
         }
         else
         {
+            printf("path:%s\n", path);
+
             file_name = strrchr(path, '/');
             file_name++;
-            snprintf(path, MAX_LENGTH, "%s%s", file_path, file_name);
+            printf("file_name2:%s\n", file_name);
+
+            snprintf(path, MAX_LENGTH, "%s/%s", file_path, file_name);
             dir_path_create(path, 1);
         }
         FILE *file = NULL;
@@ -192,7 +137,6 @@ void file_deserialized(unsigned char **serialized_data, int file_count, char *fi
             serialized_data_ptr += file_data_size;
             continue;
         }
-
         //  파일 데이터 추출 및 포인터 이동
         fwrite(serialized_data_ptr, 1, file_data_size, file);
         serialized_data_ptr += file_data_size;
@@ -238,28 +182,32 @@ void file_serialized(unsigned char **serialized_data, file_list_t *file_list, tr
 
     file_list_t *current_file_data = NULL;
     file_list_t *tmp = NULL;
-    FILE *file = NULL;
+
     HASH_ITER(hh, file_list, current_file_data, tmp)
     {
-        memcpy(serialized_data_ptr, &current_file_data->file_path_size, sizeof(unsigned long));
-        serialized_data_ptr += sizeof(unsigned long);
-
-        memcpy(serialized_data_ptr, &current_file_data->file_data_size, sizeof(unsigned long));
-        serialized_data_ptr += sizeof(unsigned long);
-
-        snprintf(serialized_data_ptr, current_file_data->file_path_size, "%s", current_file_data->path);
-        serialized_data_ptr += current_file_data->file_path_size;
-        printf("%s\n", current_file_data->path);
-        file = fopen(current_file_data->path, "rb");
-        if (NULL == file)
+        if (1 == current_file_data->state)
         {
-            printf("%s 파일 열기 실패\n", current_file_data->path);
+            memcpy(serialized_data_ptr, &current_file_data->file_path_size, sizeof(unsigned long));
+            serialized_data_ptr += sizeof(unsigned long);
+
+            memcpy(serialized_data_ptr, &current_file_data->file_data_size, sizeof(unsigned long));
+            serialized_data_ptr += sizeof(unsigned long);
+
+            snprintf(serialized_data_ptr, current_file_data->file_path_size, "%s", current_file_data->path);
+            serialized_data_ptr += current_file_data->file_path_size;
+
+            FILE *file = NULL;
+            file = fopen(current_file_data->path, "rb");
+            if (NULL == file)
+            {
+                printf("%s 파일 열기 실패\n", current_file_data->path);
+            }
+
+            fread(serialized_data_ptr, 1, current_file_data->file_data_size, file);
+            serialized_data_ptr += current_file_data->file_data_size;
+
+            fclose(file);
         }
-
-        fread(serialized_data_ptr, 1, current_file_data->file_data_size, file);
-        serialized_data_ptr += current_file_data->file_data_size;
-
-        fclose(file);
     }
 }
 /**

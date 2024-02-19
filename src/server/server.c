@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
             if (0 != update_header.total_size)
             {
                 printf("변경 데이터 전송\n");
-                update_data_serialized(file_list, update_header, &update_data);
+                file_serialized(&update_data, file_list, update_header);
                 if (update_header.total_size > COMPRESS_BOUNDARY)
                 {
                     update_header.total_size = serialized_data_compress(&update_data, &update_header, update_header.total_size);
@@ -186,6 +186,7 @@ int main(int argc, char *argv[])
                 free(serialized_data);
                 serialized_data = NULL;
             }
+            change_state(file_list, 1);
 
             // 초기 전송 데이터에 변경사항을 반영하여 다시 생성
             transfer_header.data_type = 3;
