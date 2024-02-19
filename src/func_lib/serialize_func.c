@@ -479,60 +479,110 @@ void file_list_serialized(unsigned char **serialized_data, transfer_header_t *tr
  * @brief slave_server_action
  * 슬레이브 서버의 동작 함수
  *
+ * @param int master_server_socket
+ *
  * @param file_info_t *file_list
  *
  * @param char *sync_file_path
  *
  * @return void
  */
-void slave_server_action(file_list_t *file_list, char *sync_file_path)
+void slave_server_action(int master_server_socket, file_list_t *file_list, char *sync_file_path)
 {
-    if (NULL == file_list)
+    if (NULL == file_list || master_server_socket <= 0)
     {
         printf("slave_server_action 매개변수가 올바르지 않습니다.\n");
         return;
     }
-    int slave_server_socket = 0;
-    slave_server_socket = socket_create(AF_INET, SOCK_STREAM, PROTOCOL);
-
-    int opt = 1;
-    setsockopt(slave_server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
-    struct sockaddr_in address;
-    server_address_set(&address, AF_INET, SERVER_PORT);
-
-    socket_bind(slave_server_socket, &address);
-    socket_listen(slave_server_socket, 50);
-
-    // 마스터 서버와 통신 연결
-    int master_server_socket = 0;
-    master_server_socket = socket_select(slave_server_socket);
 
     // 마스터 서버와의 연결이 없으면 종료. 기존의 변경사항 체크로 넘어감
-    if (-1 != master_server_socket)
+
+    //***********************************************************************파일 리스트 역직렬화 수신***********************************************************************
+
+    transfer_header_t transfer_header;
+    memset(&transfer_header, 0, sizeof(transfer_header_t));
+
+    // 파일 리스트의 헤더 수신
+    long received_bytes = 0;
+    received_bytes = recv(master_server_socket, &transfer_header, sizeof(transfer_header_t), 0);
+    if (0 == received_bytes)
     {
-        //***********************************************************************파일 리스트 역직렬화 수신***********************************************************************
+        // 상대방이 연결을 종료한 경우 처리
+        printf("상대방이 연결을 종료했습니다.\n");
+        close(master_server_socket);
+        return;
+    }
 
-        transfer_header_t transfer_header;
+    // 수신 받을 직렬화 데이터 할당
+    unsigned char *serialized_data = NULL;
+    serialized_data = (unsigned char *)malloc(transfer_header.total_size);
+
+    // 파일 리스트의 직렬화 데이터 수신
+    received_bytes = recv(master_server_socket, serialized_data, transfer_header.total_size, 0);
+    if (0 == received_bytes)
+    {
+        // 상대방이 연결을 종료한 경우 처리
+        printf("상대방이 연결을 종료했습니다.\n");
+        if (NULL != serialized_data)
+        {
+            free(serialized_data);
+            serialized_data = NULL;
+        }
+        close(master_server_socket);
+        return;
+    }
+
+    // 압축 데이터의 경우 압축 해제
+    if (transfer_header.data_type > COMPRESS_TYPE)
+    {
+        serialized_data_decompress(&serialized_data, &transfer_header);
+    }
+
+    file_list_deserialized(&serialized_data, file_list, transfer_header.file_count, sync_file_path);
+
+    // 사용한 직렬화 데이터 해제
+    if (NULL != serialized_data)
+    {
+        free(serialized_data);
+        serialized_data = NULL;
+    }
+    //***********************************************************************업데이트 직렬화 전송***********************************************************************
+    update_header_set(file_list, &transfer_header, 2);
+    file_path_serialized(&serialized_data, &transfer_header, file_list);
+
+    // 직렬화 데이터 압축화
+    if (transfer_header.total_size > COMPRESS_BOUNDARY)
+    {
+        // 직렬화 데이터만 압축하기에 serialized_data_size에서 transfer_header_t의 크기를 제외한 인자를 보냄
+        transfer_header.total_size = serialized_data_compress(&serialized_data, &transfer_header, transfer_header.total_size);
+    }
+    send(master_server_socket, serialized_data, sizeof(transfer_header_t) + transfer_header.total_size, 0);
+
+    if (NULL != serialized_data)
+    {
+        free(serialized_data);
+        serialized_data = NULL;
+    }
+
+    //***********************************************************************파일 역직렬화 수신***********************************************************************
+    // 업데이트 리스트가 존재할 경우에만 실행
+    if (0 != transfer_header.file_count)
+    { // 파일 역직렬화
+
+        // transfer_file_list 초기화
         memset(&transfer_header, 0, sizeof(transfer_header_t));
-
-        // 파일 리스트의 헤더 수신
-        long received_bytes = 0;
         received_bytes = recv(master_server_socket, &transfer_header, sizeof(transfer_header_t), 0);
         if (0 == received_bytes)
         {
             // 상대방이 연결을 종료한 경우 처리
             printf("상대방이 연결을 종료했습니다.\n");
-            close(slave_server_socket);
             close(master_server_socket);
             return;
         }
 
         // 수신 받을 직렬화 데이터 할당
-        unsigned char *serialized_data = NULL;
         serialized_data = (unsigned char *)malloc(transfer_header.total_size);
 
-        // 파일 리스트의 직렬화 데이터 수신
         received_bytes = recv(master_server_socket, serialized_data, transfer_header.total_size, 0);
         if (0 == received_bytes)
         {
@@ -543,7 +593,6 @@ void slave_server_action(file_list_t *file_list, char *sync_file_path)
                 free(serialized_data);
                 serialized_data = NULL;
             }
-            close(slave_server_socket);
             close(master_server_socket);
             return;
         }
@@ -554,83 +603,14 @@ void slave_server_action(file_list_t *file_list, char *sync_file_path)
             serialized_data_decompress(&serialized_data, &transfer_header);
         }
 
-        file_list_deserialized(&serialized_data, file_list, transfer_header.file_count, sync_file_path);
-
-        // 사용한 직렬화 데이터 해제
-        if (NULL != serialized_data)
-        {
-            free(serialized_data);
-            serialized_data = NULL;
-        }
-        //***********************************************************************업데이트 직렬화 전송***********************************************************************
-        update_header_set(file_list, &transfer_header, 2);
-        file_path_serialized(&serialized_data, &transfer_header, file_list);
-
-        // 직렬화 데이터 압축화
-        if (transfer_header.total_size > COMPRESS_BOUNDARY)
-        {
-            // 직렬화 데이터만 압축하기에 serialized_data_size에서 transfer_header_t의 크기를 제외한 인자를 보냄
-            transfer_header.total_size = serialized_data_compress(&serialized_data, &transfer_header, transfer_header.total_size);
-        }
-        send(master_server_socket, serialized_data, sizeof(transfer_header_t) + transfer_header.total_size, 0);
+        file_deserialized(&serialized_data, -1, NULL);
 
         if (NULL != serialized_data)
         {
             free(serialized_data);
             serialized_data = NULL;
-        }
-
-        //***********************************************************************파일 역직렬화 수신***********************************************************************
-        // 업데이트 리스트가 존재할 경우에만 실행
-        if (0 != transfer_header.file_count)
-        { // 파일 역직렬화
-
-            // transfer_file_list 초기화
-            memset(&transfer_header, 0, sizeof(transfer_header_t));
-            received_bytes = recv(master_server_socket, &transfer_header, sizeof(transfer_header_t), 0);
-            if (0 == received_bytes)
-            {
-                // 상대방이 연결을 종료한 경우 처리
-                printf("상대방이 연결을 종료했습니다.\n");
-                close(slave_server_socket);
-                close(master_server_socket);
-                return;
-            }
-
-            // 수신 받을 직렬화 데이터 할당
-            serialized_data = (unsigned char *)malloc(transfer_header.total_size);
-
-            received_bytes = recv(master_server_socket, serialized_data, transfer_header.total_size, 0);
-            if (0 == received_bytes)
-            {
-                // 상대방이 연결을 종료한 경우 처리
-                printf("상대방이 연결을 종료했습니다.\n");
-                if (NULL != serialized_data)
-                {
-                    free(serialized_data);
-                    serialized_data = NULL;
-                }
-                close(slave_server_socket);
-                close(master_server_socket);
-                return;
-            }
-
-            // 압축 데이터의 경우 압축 해제
-            if (transfer_header.data_type > COMPRESS_TYPE)
-            {
-                serialized_data_decompress(&serialized_data, &transfer_header);
-            }
-
-            file_deserialized(&serialized_data, -1, NULL);
-
-            if (NULL != serialized_data)
-            {
-                free(serialized_data);
-                serialized_data = NULL;
-            }
         }
     }
 
-    close(slave_server_socket);
     close(master_server_socket);
 }

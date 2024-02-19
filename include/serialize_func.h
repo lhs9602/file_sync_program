@@ -27,7 +27,7 @@ extern "C"
     void file_list_deserialized(unsigned char **serialized_data, file_list_t *file_list, int file_count, char *sync_file_path);
     void file_path_serialized(unsigned char **serialized_data, transfer_header_t *transfer_header, file_list_t *file_list);
     void file_path_deserialized(file_list_t *file_list, unsigned char **serialized_data, int file_count);
-    void slave_server_action(file_list_t *file_list, char *sync_file_path);
+    void slave_server_action(int master_server_socket, file_list_t *file_list, char *sync_file_path);
 
 #ifdef __cplusplus
 }

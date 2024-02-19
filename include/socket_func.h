@@ -36,7 +36,7 @@ extern "C"
     int socket_accept(int socket_fd, struct sockaddr *address, socklen_t *addrlen);
     int socket_select(int slave_server_socket);
     int client_action();
-    void select_init(int server_socket_fd, int *client_socket, fd_set *readfds, int *max_sd, struct timeval *timeout);
+    void select_init(int server_socket_fd, int slave_server_socket, int *client_socket, fd_set *readfds, int *max_sd, struct timeval *timeout);
     void client_add(int new_socket, int *client_socket);
     int client_connect_check(int client_socket);
     int master_server_connect(in_addr_t ip_addresses);

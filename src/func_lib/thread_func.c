@@ -119,9 +119,8 @@ void master_server_thread(file_list_t *file_list, in_addr_t *ip_addresses, int i
     {
         thread_server_data[thread_index].file_list = file_list;
         thread_server_data[thread_index].ip_addresses = ip_addresses[thread_index];
-
-        pthread_create(&server_threads[thread_index], NULL, server_send_thread, &thread_server_data[thread_index]);
         printf("스레드 %d 생성\n", thread_index);
+        pthread_create(&server_threads[thread_index], NULL, server_send_thread, &thread_server_data[thread_index]);
     }
     for (int thread_index = 0; thread_index < ip_count; thread_index++)
     {

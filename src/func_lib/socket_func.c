@@ -262,6 +262,8 @@ int client_action()
  *
  * @param   int server_socket_fd
  *
+ * @param   int slave_server_socket
+ *
  * @param   int *client_socket
  *
  * @param   fd_set *readfds
@@ -273,11 +275,25 @@ int client_action()
  * @return void
  *
  */
-void select_init(int server_socket_fd, int *client_socket, fd_set *readfds, int *max_sd, struct timeval *timeout)
+void select_init(int server_socket_fd, int slave_server_socket, int *client_socket, fd_set *readfds, int *max_sd, struct timeval *timeout)
 {
     FD_ZERO(readfds);
     FD_SET(server_socket_fd, readfds);
+    if (slave_server_socket > 0)
+    {
+        FD_SET(slave_server_socket, readfds);
+    }
+
     *max_sd = server_socket_fd;
+
+    if (server_socket_fd > slave_server_socket)
+    {
+        *max_sd = server_socket_fd;
+    }
+    else
+    {
+        *max_sd = slave_server_socket;
+    }
 
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
@@ -410,7 +426,7 @@ int master_server_connect(in_addr_t ip_addresses)
     server_addr.sin_port = htons(SERVER_PORT);
 
     struct timeval timeout;
-    timeout.tv_sec = WAIT_TIME;
+    timeout.tv_sec = 60;
     timeout.tv_usec = 0;
 
     setsockopt(socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));

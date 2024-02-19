@@ -71,10 +71,10 @@ int main(int argc, char *argv[])
     int opt = 1;
     setsockopt(server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    struct sockaddr_in address;
-    server_address_set(&address, AF_INET, PORT);
+    struct sockaddr_in server_socket_address;
+    server_address_set(&server_socket_address, AF_INET, PORT);
 
-    socket_bind(server_socket_fd, &address);
+    socket_bind(server_socket_fd, &server_socket_address);
     socket_listen(server_socket_fd, 50);
 
     fd_set readfds;
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     int client_socket[MAX_CLIENTS];
     memset(client_socket, 0, sizeof(client_socket));
 
-    int addrlen = sizeof(address);
+    int server_socket_addrlen = sizeof(server_socket_address);
     int max_sd = 0;
     int client_close;
 
@@ -91,22 +91,33 @@ int main(int argc, char *argv[])
 
     unsigned char *update_data = NULL;
 
+    int slave_server_socket = 0;
+
+    // 슬레이브 서버 로직
+    if (0 == sync_server_path_len)
+    {
+        slave_server_socket = socket_create(AF_INET, SOCK_STREAM, PROTOCOL);
+        setsockopt(slave_server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+        struct sockaddr_in slave_server_address;
+        server_address_set(&slave_server_address, AF_INET, SERVER_PORT);
+
+        socket_bind(slave_server_socket, &slave_server_address);
+        socket_listen(slave_server_socket, 5);
+    }
     while (TRUE)
-    { // 슬레이브 서버 로직
-        if (0 == sync_server_path_len)
-        {
-            slave_server_action(file_list, sync_file_path);
-        }
+    {
+
         printf("checking\n");
 
-        select_init(server_socket_fd, client_socket, &readfds, &max_sd, &timeout);
+        select_init(server_socket_fd, slave_server_socket, client_socket, &readfds, &max_sd, &timeout);
 
         select(max_sd + 1, &readfds, NULL, NULL, &timeout);
         // 새로운 연결 요청 확인
         if (FD_ISSET(server_socket_fd, &readfds))
         {
             int new_socket = 0;
-            new_socket = socket_accept(server_socket_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen);
+            new_socket = socket_accept(server_socket_fd, (struct sockaddr *)&server_socket_address, (socklen_t *)&server_socket_addrlen);
 
             // 새 소켓을 클라이언트 소켓 배열에 추가
             client_add(new_socket, client_socket);
@@ -133,6 +144,19 @@ int main(int argc, char *argv[])
         {
             continue;
         }
+
+        // 슬레이브 서버 로직
+        if (0 == sync_server_path_len)
+        {
+            if (FD_ISSET(server_socket_fd, &readfds))
+            {
+                int master_server_socket = 0;
+                master_server_socket = socket_accept(server_socket_fd, (struct sockaddr *)&server_socket_address, (socklen_t *)&server_socket_addrlen);
+                slave_server_action(master_server_socket, file_list, sync_file_path);
+                close(slave_server_socket);
+            }
+        }
+
         // 기존의 상태를 -1로 변경
         change_state(file_list, -1);
 
@@ -182,6 +206,7 @@ int main(int argc, char *argv[])
             master_server_action(file_list, sync_server_path);
         }
     }
+
     if (NULL != serialized_data)
     {
         free(serialized_data);
