@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
         // 슬레이브 서버 로직
         if (0 == sync_server_path_len)
         {
-            printf(" 슬레이브 서버 로직\n");
+            printf("마스터 서버 동기화\n");
 
             if (FD_ISSET(slave_server_socket, &readfds))
             {

@@ -112,6 +112,8 @@ void file_deserialized(unsigned char **serialized_data, int file_count, char *fi
         serialized_data_ptr += file_path_size;
 
         char *file_name = NULL;
+        file_name = strrchr(path, '/');
+        file_name++;
         // 마스터 서버와 슬레이브 서버의 통신인지, 서버(a)와 클라이언트(b)의 통신인지 구분
         if (NULL == file_path)
         {
@@ -120,12 +122,6 @@ void file_deserialized(unsigned char **serialized_data, int file_count, char *fi
         }
         else
         {
-            printf("path:%s\n", path);
-
-            file_name = strrchr(path, '/');
-            file_name++;
-            printf("file_name2:%s\n", file_name);
-
             snprintf(path, MAX_LENGTH, "%s/%s", file_path, file_name);
             dir_path_create(path, 1);
         }
@@ -143,11 +139,11 @@ void file_deserialized(unsigned char **serialized_data, int file_count, char *fi
 
         end_time = clock();
         elapsed_time = ((double)(end_time - start_time)) / CLOCKS_PER_SEC * 1000.0;
-
-        printf("파일명: %s\t파일크기: %ld\t전송 시간: %.3f 밀리초\n", file_name, file_data_size, elapsed_time);
         printf("-----------------------------------------------------------------\n");
+        printf("파일명: %s\t파일크기: %ld\t전송 시간: %.3f 밀리초\n", file_name, file_data_size, elapsed_time);
         fclose(file);
     }
+    printf("-----------------------------------------------------------------\n");
 
     end_time = clock();
     elapsed_time = ((double)(end_time - start_sync_time)) / CLOCKS_PER_SEC * 1000.0;
@@ -234,7 +230,7 @@ void file_path_deserialized(file_list_t *file_list, unsigned char **serialized_d
     serialized_data_ptr = *serialized_data;
 
     file_list_t *current_file_data = NULL;
-    printf("---------------------------업데이트 대상----------------------\n");
+    printf("----------------------업데이트 대상----------------------\n");
 
     // 직렬화 데이터 추출
     for (int path_index = 0; path_index < file_count; path_index++)
@@ -338,8 +334,8 @@ void file_list_deserialized(unsigned char **serialized_data, file_list_t *file_l
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
 
-    // FILE *file = NULL;
-    // file = fopen(sync_file_path, "w");
+    FILE *file = NULL;
+    file = fopen(sync_file_path, "w");
     // 직렬화 데이터 추출
     for (int path_index = 0; path_index < file_count; path_index++)
     {
@@ -355,7 +351,7 @@ void file_list_deserialized(unsigned char **serialized_data, file_list_t *file_l
         snprintf(path, file_path_size, "%s", serialized_data_ptr);
         serialized_data_ptr += file_path_size;
 
-        // fprintf(file, "%s\n", path);
+        fprintf(file, "%s\n", path);
 
         unsigned char check_sum[SHA256_DIGEST_LENGTH];
         memset(check_sum, 0, sizeof(check_sum));
@@ -376,6 +372,7 @@ void file_list_deserialized(unsigned char **serialized_data, file_list_t *file_l
             current_file_data->state = 1;
         }
     }
+    fclose(file);
 }
 
 /**
@@ -448,7 +445,6 @@ void slave_server_action(int master_server_socket, file_list_t *file_list, char 
     // 마스터 서버와의 연결이 없으면 종료. 기존의 변경사항 체크로 넘어감
     while (TRUE)
     {
-        //***********************************************************************파일 리스트 역직렬화 수신***********************************************************************
 
         transfer_header_t transfer_header;
         memset(&transfer_header, 0, sizeof(transfer_header_t));
@@ -484,8 +480,8 @@ void slave_server_action(int master_server_socket, file_list_t *file_list, char 
             serialized_data_decompress(&serialized_data, &transfer_header);
             transfer_header.data_type -= COMPRESS_TYPE;
         }
-
-        if (transfer_header.data_type == 1)
+        // 파일 리스트 역직렬화 수신
+        if (1 == transfer_header.data_type)
         {
             file_list_deserialized(&serialized_data, file_list, transfer_header.file_count, sync_file_path);
             if (NULL != serialized_data)
@@ -498,6 +494,7 @@ void slave_server_action(int master_server_socket, file_list_t *file_list, char 
             // 전송할 파일 경로가 없으면 종료
             if (0 == transfer_header.file_count)
             {
+                printf("전송할 파일 경로가 없습니다.\n");
                 break;
             }
 
@@ -511,11 +508,11 @@ void slave_server_action(int master_server_socket, file_list_t *file_list, char 
 
             send(master_server_socket, serialized_data, sizeof(transfer_header_t) + transfer_header.total_size, 0);
         }
-        //**********************파일 역직렬화 수신**********************
-        else if (transfer_header.data_type == 1)
+        // 파일 역직렬화 수신
+        else if (3 == transfer_header.data_type)
         {
 
-            file_deserialized(&serialized_data, -1, NULL);
+            file_deserialized(&serialized_data, transfer_header.file_count, NULL);
             break;
         }
     }

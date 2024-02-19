@@ -157,9 +157,10 @@ void *server_send_thread(void *arg)
 
     unsigned char *serialized_data = NULL;
     long received_bytes = 0;
-    if (-1 != socket_fd)
+    if (0 != socket_fd)
     {
-        //***********************************************************************파일 리스트 직렬화 전송***********************************************************************
+
+        // 파일 리스트 직렬화 전송
 
         // 기본 전송 헤더 설정
         transfer_header_t transfer_header;
@@ -186,13 +187,11 @@ void *server_send_thread(void *arg)
             serialized_data = NULL;
         }
 
-        //***********************************************************************업데이트 역직렬화 수신***********************************************************************
+        // 업데이트 역직렬화 수신
 
-        // 업데이트 리스트 직렬화 데이터 수신
         memset(&transfer_header, 0, sizeof(transfer_header_t));
 
         // 업데이트 리스트의 헤더 수신
-        printf("업데이트 리스트의 헤더 수신 \n");
         received_bytes = recv(socket_fd, &transfer_header, sizeof(transfer_header_t), 0);
         if (0 == received_bytes)
         {
@@ -205,7 +204,6 @@ void *server_send_thread(void *arg)
         }
         // 수신 받을 직렬화 데이터 할당
         serialized_data = (unsigned char *)malloc(transfer_header.total_size);
-        printf("업데이트 리스트의 직렬화 데이터 수신\n");
 
         // 업데이트 리스트의 직렬화 데이터 수신
         received_bytes = recv(socket_fd, serialized_data, transfer_header.total_size, 0);
@@ -228,7 +226,6 @@ void *server_send_thread(void *arg)
         {
             serialized_data_decompress(&serialized_data, &transfer_header);
         }
-        printf(" 업데이트 리스트의 직렬화 데이터 역작렬화\n");
         // 업데이트 리스트의 직렬화 데이터 역작렬화
         file_path_deserialized(file_list, &serialized_data, transfer_header.file_count);
         if (NULL != serialized_data)
@@ -237,12 +234,10 @@ void *server_send_thread(void *arg)
             serialized_data = NULL;
         }
 
-        //***********************************************************************파일 직렬화 전송***********************************************************************
-        // 업데이트 리스트가 존재할 경우에만 실행
+        // 파일 직렬화 전송
+        //  업데이트 리스트가 존재할 경우에만 실행
         if (transfer_header.file_count > 0)
         {
-            printf("파일 직렬화 전송\n");
-
             update_header_set(file_list, &transfer_header, 3);
             file_serialized(&serialized_data, file_list, transfer_header);
 

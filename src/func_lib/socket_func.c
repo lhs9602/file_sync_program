@@ -328,7 +328,7 @@ void client_add(int new_socket, int *client_socket)
     {
         if (0 == client_socket[index])
         {
-            printf("새 클라이언트로부터의 요청 %d\n", index);
+            printf("새 클라이언트로부터의 요청\n");
             client_socket[index] = new_socket;
             break;
         }
@@ -390,7 +390,7 @@ void master_server_action(file_list_t *file_list, char *sync_server_path)
         {
             continue;
         }
-        printf("유효한 주소:%d. %s\n", index, inet_ntoa(*(struct in_addr *)&ip_addresses[index]));
+        printf("유효한 주소: %s\n", inet_ntoa(*(struct in_addr *)&ip_addresses[index]));
     }
     if (ip_count != 0)
     {
@@ -426,7 +426,7 @@ int master_server_connect(in_addr_t ip_addresses)
     server_addr.sin_port = htons(SERVER_PORT);
 
     struct timeval timeout;
-    timeout.tv_sec = 10;
+    timeout.tv_sec = WAIT_TIME;
     timeout.tv_usec = 0;
 
     setsockopt(socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));

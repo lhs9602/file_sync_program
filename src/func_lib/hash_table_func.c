@@ -21,11 +21,11 @@ void print_all_files(file_list_t **file_list)
     HASH_ITER(hh, *file_list, current_file_data, tmp)
     {
         printf("Path: %s\n", current_file_data->path);
-        printf("File_Name: %s\n", current_file_data->file_name);
-        //  printf("File Path Size: %lu\n", current_file_data->file_path_size);
-        // printf("File Data Size: %lu\n", current_file_data->file_data_size);
-        // printf("Update Time: %ld\n", current_file_data->update_time);
-        printf("State: %d\n", current_file_data->state);
+        // printf("File_Name: %s\n", current_file_data->file_name);
+        //   printf("File Path Size: %lu\n", current_file_data->file_path_size);
+        //  printf("File Data Size: %lu\n", current_file_data->file_data_size);
+        //  printf("Update Time: %ld\n", current_file_data->update_time);
+        // printf("State: %d\n", current_file_data->state);
 
         // check_sum은 바이트 배열이므로, 각 바이트를 16진수 형태로 출력합니다.
         // printf("Check Sum: ");
@@ -226,7 +226,6 @@ unsigned long total_file_size_cal(file_list_t *file_list)
         total_size += current_file_data->file_path_size + sizeof(unsigned long);
         total_size += current_file_data->file_data_size + sizeof(unsigned long);
     }
-    printf("total_size:%ld\n", total_size);
 
     return total_size;
 }
@@ -253,12 +252,11 @@ int check_path(file_list_t *current_file_data, char *path)
 
     if (current_file_data->update_time == file_data.st_mtime)
     {
-        printf("유지\n");
         current_file_data->state = 0;
     }
     else
     {
-        printf("변경\n");
+        printf(" 변경\n");
         current_file_data->update_time = file_data.st_mtime;
         current_file_data->file_data_size = file_data.st_size;
 
