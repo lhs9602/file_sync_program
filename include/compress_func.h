@@ -8,7 +8,7 @@
 #include "hash_table_func.h"
 
 #define COMPRESS_TYPE 10
-#define COMPRESS_BOUNDARY 0
+#define COMPRESS_BOUNDARY 100
 
 typedef struct transfer_header transfer_header_t;
 

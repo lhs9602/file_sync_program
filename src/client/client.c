@@ -11,6 +11,11 @@ int main(int argc, char *argv[])
     dir_path_create(DESTINATION_PATH, 0);
     int client_soket_fd = 0;
     client_soket_fd = client_action();
+    if (client_soket_fd < 0)
+    {
+        return 0;
+    }
+
     while (TRUE)
     {
 

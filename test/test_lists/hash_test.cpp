@@ -43,11 +43,10 @@ TEST_F(hash_test, add_path)
     file_list_t *test_list = NULL;
 
     add_path(&test_list, absolute_path_change((char *)file_path[0]));
-    EXPECT_NE(find_file_data(file_list, absolute_path_change((char *)file_path[0])), nullptr);
+    EXPECT_NE(find_file_data(test_list, absolute_path_change((char *)file_path[0])), nullptr);
 
     std::string output = ::testing::internal::GetCapturedStdout();
 }
-
 TEST_F(hash_test, delete_file_data)
 {
     ::testing::internal::CaptureStdout();
@@ -114,13 +113,22 @@ TEST_F(hash_test, change_state3)
     std::string output = ::testing::internal::GetCapturedStdout();
 }
 
-TEST_F(hash_test, delete_state_clear)
+TEST_F(hash_test, delete_state_clear1)
 {
     ::testing::internal::CaptureStdout();
 
     change_state(file_list, -1);
     delete_state_clear(&file_list);
     EXPECT_EQ(file_list, nullptr);
+
+    std::string output = ::testing::internal::GetCapturedStdout();
+}
+TEST_F(hash_test, delete_state_clear2)
+{
+    ::testing::internal::CaptureStdout();
+
+    delete_state_clear(&file_list);
+    EXPECT_NE(file_list, nullptr);
 
     std::string output = ::testing::internal::GetCapturedStdout();
 }

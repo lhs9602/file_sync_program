@@ -15,10 +15,15 @@
  */
 void print_all_files(file_list_t **file_list)
 {
+    if (NULL == *file_list)
+    {
+        printf("print_all_files의 매개변수가 올바르지 않습니다.\n");
+        return;
+    }
 
     file_list_t *current_file_data = NULL;
     file_list_t *tmp = NULL;
-    printf("파일 리스트 목록 %s\n", current_file_data->path);
+    printf("파일 리스트 목록\n");
     printf("-------------------------------------------------\n");
 
     HASH_ITER(hh, *file_list, current_file_data, tmp)
@@ -200,37 +205,17 @@ void delete_state_clear(file_list_t **file_list)
  */
 void clear_file_list(file_list_t **file_list)
 {
-
+    if (NULL == *file_list)
+    {
+        printf("clear_file_list의 매개변수가 올바르지 않습니다.\n");
+        return;
+    }
     file_list_t *current_file_data, *tmp;
     HASH_ITER(hh, *file_list, current_file_data, tmp)
     {
         delete_file_data(file_list, current_file_data->path);
     }
     printf("file_list가 삭제되었습니다.\n");
-}
-
-/**
- * @brief total_file_size_cal
- * 해쉬 테이블에 있는 모든 파일과 경로의 크기의 합을 구하는 함수
- *
- * @param file_list_t **file_list
- *
- * @return unsigned long
- */
-unsigned long total_file_size_cal(file_list_t *file_list)
-{
-
-    file_list_t *current_file_data = NULL;
-    file_list_t *tmp = NULL;
-
-    unsigned long total_size = 0;
-    HASH_ITER(hh, file_list, current_file_data, tmp)
-    {
-        total_size += current_file_data->file_path_size + sizeof(unsigned long);
-        total_size += current_file_data->file_data_size + sizeof(unsigned long);
-    }
-
-    return total_size;
 }
 
 /**

@@ -303,7 +303,11 @@ void process_sync_file(file_list_t **file_list, char *sync_file_path)
  */
 int update_check_sync_file(file_list_t **file_list, char *sync_file_path)
 {
-
+    if (NULL == sync_file_path || NULL == *file_list)
+    {
+        printf("update_check_sync_file의 매개변수가 올바르지 않습니다.\n");
+        return -1;
+    }
     FILE *file = fopen(sync_file_path, "r");
     static char buffer[MAX_LENGTH];
     memset(buffer, 0, sizeof(buffer));
@@ -355,6 +359,11 @@ int update_check_sync_file(file_list_t **file_list, char *sync_file_path)
  */
 int process_sync_server(char *sync_server_path, in_addr_t *ip_addresses)
 {
+    if (NULL == sync_server_path)
+    {
+        printf("process_sync_server의 매개변수가 올바르지 않습니다.\n");
+        return -1;
+    }
     FILE *file = fopen(sync_server_path, "r");
     if (file == NULL)
     {

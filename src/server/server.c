@@ -51,9 +51,7 @@ int main(int argc, char *argv[])
     transfer_header_t transfer_header;
     memset(&transfer_header, 0, sizeof(transfer_header_t));
 
-    transfer_header.data_type = 3;
-    transfer_header.total_size = total_file_size_cal(file_list);
-    transfer_header.file_count = HASH_COUNT(file_list);
+    update_header_set(file_list, &transfer_header, 3);
 
     // 초기 데이터 할당
     unsigned char *serialized_data = NULL;
@@ -189,9 +187,7 @@ int main(int argc, char *argv[])
             change_state(file_list, 1);
 
             // 초기 전송 데이터에 변경사항을 반영하여 다시 생성
-            transfer_header.data_type = 3;
-            transfer_header.total_size = total_file_size_cal(file_list);
-            transfer_header.file_count = HASH_COUNT(file_list);
+            update_header_set(file_list, &transfer_header, 3);
 
             file_serialized(&serialized_data, file_list, transfer_header);
 

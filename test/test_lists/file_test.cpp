@@ -129,7 +129,6 @@ TEST_F(file_test, flie_name_remover3)
     std::string output = ::testing::internal::GetCapturedStdout();
 }
 
-// dir_path_create 테스트 메서드의 정의
 TEST_F(file_test, dir_path_create1)
 {
     const char *path = "../../test_files/1/2/3";
@@ -149,7 +148,7 @@ TEST_F(file_test, dir_path_create2)
     ASSERT_EQ(0, access("../../test_files/4", F_OK));
     ASSERT_EQ(0, access("../../test_files/4/5", F_OK));
 }
-TEST_F(file_test, process_sync_file)
+TEST_F(file_test, process_sync_file1)
 {
     ::testing::internal::CaptureStdout();
 
@@ -159,7 +158,17 @@ TEST_F(file_test, process_sync_file)
 
     std::string output = ::testing::internal::GetCapturedStdout();
 }
-TEST_F(file_test, update_check_sync_file)
+TEST_F(file_test, process_sync_file2)
+{
+    ::testing::internal::CaptureStdout();
+
+    file_list_t *file_list = nullptr;
+    process_sync_file(&file_list, nullptr);
+    EXPECT_EQ(file_list, nullptr);
+
+    std::string output = ::testing::internal::GetCapturedStdout();
+}
+TEST_F(file_test, update_check_sync_file1)
 {
     ::testing::internal::CaptureStdout();
 
@@ -169,9 +178,59 @@ TEST_F(file_test, update_check_sync_file)
 
     std::string output = ::testing::internal::GetCapturedStdout();
 }
-
-TEST_F(file_test, absolute_path_change)
+TEST_F(file_test, update_check_sync_file2)
 {
+    ::testing::internal::CaptureStdout();
+
+    file_list_t *file_list = nullptr;
+    EXPECT_EQ(update_check_sync_file(&file_list, (char *)sync_file_path), -1);
+
+    std::string output = ::testing::internal::GetCapturedStdout();
+}
+TEST_F(file_test, update_check_sync_file3)
+{
+    ::testing::internal::CaptureStdout();
+
+    file_list_t *file_list = nullptr;
+    process_sync_file(&file_list, (char *)sync_file_path);
+    EXPECT_EQ(update_check_sync_file(&file_list, nullptr), -1);
+
+    std::string output = ::testing::internal::GetCapturedStdout();
+}
+TEST_F(file_test, absolute_path_change1)
+{
+    ::testing::internal::CaptureStdout();
 
     EXPECT_STRNE(absolute_path_change("../../test_files/1.txt"), "../../test_files/1.txt");
+    std::string output = ::testing::internal::GetCapturedStdout();
+}
+TEST_F(file_test, absolute_path_change2)
+{
+    ::testing::internal::CaptureStdout();
+
+    EXPECT_EQ(absolute_path_change(nullptr), nullptr);
+    std::string output = ::testing::internal::GetCapturedStdout();
+}
+
+TEST_F(file_test, process_sync_server1)
+{
+    ::testing::internal::CaptureStdout();
+
+    in_addr_t ip_addresses[sizeof(sync_server_ip) / sizeof(sync_server_ip[0])];
+
+    int result = process_sync_server((char *)sync_server_path, ip_addresses);
+
+    EXPECT_EQ(3, result);
+    std::string output = ::testing::internal::GetCapturedStdout();
+}
+TEST_F(file_test, process_sync_server2)
+{
+    ::testing::internal::CaptureStdout();
+
+    in_addr_t ip_addresses[5];
+
+    int result = process_sync_server((char *)sync_server_path, ip_addresses);
+
+    EXPECT_EQ(3, result);
+    std::string output = ::testing::internal::GetCapturedStdout();
 }
