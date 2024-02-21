@@ -1,9 +1,9 @@
 #pragma GCC diagnostic ignored "-Wunused-result"
-#include "../../include/file_func.h"
+#include "file_func.h"
 #include "hash_table_func.h"
 #include "serialize_func.h"
 #include "compress_func.h"
-#include "../../include/socket_func.h"
+#include "socket_func.h"
 #include <sys/select.h>
 #include "thread_func.h"
 
@@ -37,13 +37,12 @@ int main(int argc, char *argv[])
 
     if (1 == file_path_check(argv[2]))
     {
-        strncpy(sync_server_path, argv[2], sizeof(sync_file_path));
+        snprintf(sync_server_path, MAX_LENGTH, "%s", argv[2]);
     }
 
     // sync_server_path의 길이로 메인과 슬레이브 서버 구분
     int sync_server_path_len = 0;
     sync_server_path_len = strlen(sync_server_path);
-    printf("sync_server_path_len = %d\n", sync_server_path_len);
 
     file_list_t *file_list = NULL;
     process_sync_file(&file_list, sync_file_path);
@@ -169,7 +168,7 @@ int main(int argc, char *argv[])
 
             if (0 != update_header.total_size)
             {
-                printf("변경 데이터 전송\n");
+                printf("변경 데이터 전송\n\n");
                 file_serialized(&update_data, file_list, update_header);
                 if (update_header.total_size > COMPRESS_BOUNDARY)
                 {

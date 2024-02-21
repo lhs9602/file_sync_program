@@ -157,7 +157,7 @@ void *server_send_thread(void *arg)
 
     unsigned char *serialized_data = NULL;
     long received_bytes = 0;
-    if (0 != socket_fd)
+    if (0 < socket_fd)
     {
 
         // 파일 리스트 직렬화 전송

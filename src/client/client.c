@@ -1,6 +1,6 @@
-#include "../../include/file_func.h"
+#include "file_func.h"
 #include "hash_table_func.h"
-#include "../../include/socket_func.h"
+#include "socket_func.h"
 #include "serialize_func.h"
 #include "compress_func.h"
 

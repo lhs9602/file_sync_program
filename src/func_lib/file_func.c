@@ -376,6 +376,12 @@ int process_sync_server(char *sync_server_path, in_addr_t *ip_addresses)
     char *token = NULL;
     while (fgets(buffer, sizeof(buffer), file))
     {
+        if (MAX_IPS == ip_count)
+        {
+            printf("전송가능한 서버의 갯수를 초과하였습니다.\n");
+            printf("한번에 최대 %d까지 가능합니다.\n", MAX_IPS);
+            break;
+        }
         // 개행 문자 제거
         char *token = strtok(buffer, " \n");
 
