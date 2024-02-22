@@ -12,6 +12,8 @@
 <p align="justify">
 서버-클라이언트와 마스터 서버-슬레이브 서버에서 주기적으로 변경되는 파일들을 동기화해주는 리눅스 프로그램
 
+자세한 개발 기록은 블로그 참조:
+https://lhs9602.tistory.com/category/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/%ED%8C%8C%EC%9D%BC%20%EB%8F%99%EA%B8%B0%ED%99%94
 </p>
 
 <br>
