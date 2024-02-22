@@ -1,0 +1,3 @@
+/home/nesusa/shared_dir/1.txt
+/home/nesusa/shared_dir/2.html
+/home/nesusa/shared_dir/3
