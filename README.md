@@ -89,7 +89,8 @@
 <br>
 
 ## 사용법
-bin더에 있는 server와 client 파일을 실행하면 됩니다.
+bin 폴더에 있는 server와 client 파일을 실행하면 됩니다.
+동기화 리스트의 예시는 shared_dir에 있는 sync_list.txt를 참조
 
 ### bin폴더 이동
 ```
@@ -126,6 +127,7 @@ sudo ufw allow 12346/tcp
 #방화벽 비활성화
 sudo ufw enable
 ```
+
 <p align="justify">
 
 </p>
