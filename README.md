@@ -78,7 +78,7 @@ https://lhs9602.tistory.com/category/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/%ED%8C
 ## 구현 기능
 
 ### TCP 소켓 통신
-- 동일한 로켈 환경과 다른 pc에서 소켓 통신 구현
+- 동일한 로컬 환경과 다른 pc에서 소켓 통신 구현
 - select를 사용한 다중 클라이언트 연결 구현
 - setsocket 함수로 소켓에 다양한 옵션 설정
 
